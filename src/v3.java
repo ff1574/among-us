@@ -180,7 +180,10 @@ public class v3 extends Application {
 
         //Map attributes
         private int posX = -500, posY = -500, playerPosX, playerPosY, speed = 5;
-        boolean slide = false;
+        boolean canGoUp = true;
+        boolean canGoDown = true;
+        boolean canGoLeft = true;
+        boolean canGoRight = true;
         private ImageView mapLayer = null;
 
         public MovableBackground(String path) {
@@ -188,7 +191,7 @@ public class v3 extends Application {
             this.getChildren().add(mapLayer);
         }
 
-        //Function for moving map, updating everything needed
+        // Function for moving map, updating everything needed
         public void update() {
 
             // Player Position
@@ -206,42 +209,46 @@ public class v3 extends Application {
             Color collisionCheckLeft = pr.getColor(playerPosX-10, playerPosY);
             Color collisionCheckRight = pr.getColor(playerPosX+10, playerPosY);
 
-            // System.out.printf("Red: %.0f Green: %.0f Blue: %.0f\n", collisionCheckUp.getRed(), collisionCheckUp.getGreen(), collisionCheckUp.getBlue()); //For testing RGB collision
-            System.out.printf("Up:    %f\nDown:  %f\nLeft:  %f\nRight: %f\n", collisionCheckUp.getRed(), collisionCheckDown.getRed(), collisionCheckLeft.getRed(), collisionCheckRight.getRed());
+            // For testing RGB collision
+            // System.out.printf("Red: %.0f Green: %.0f Blue: %.0f\n", collisionCheckUp.getRed(), collisionCheckUp.getGreen(), collisionCheckUp.getBlue()); 
+            // System.out.printf("Up:    %f\nDown:  %f\nLeft:  %f\nRight: %f\n", collisionCheckUp.getRed(), collisionCheckDown.getRed(), collisionCheckLeft.getRed(), collisionCheckRight.getRed());
 
+            // Restrict movement based on collision checkers
             if(collisionCheckUp.getRed() > 0.3 && collisionCheckUp.getGreen() < 0.3){
 
-                if(down)    posY -= speed;
-                if(left)    posX += speed;
-                if(right)   posX -= speed;
+                canGoUp = false;
 
+            } else canGoUp = true;
+
+            if(collisionCheckDown.getRed() > 0.3 && collisionCheckDown.getGreen() < 0.3){
+
+                canGoDown = false;
+
+            } else canGoDown = true;
+
+            if(collisionCheckLeft.getRed() > 0.3 && collisionCheckLeft.getGreen() < 0.3){
+
+                canGoLeft = false;
+
+            } else canGoLeft = true;
+
+            if(collisionCheckRight.getRed() > 0.3 && collisionCheckRight.getGreen() < 0.3){
+
+                canGoRight = false;
+
+            } else canGoRight = true;
+
+            if(canGoUp && up) {
+                posY += speed;
             }
-            else if(collisionCheckDown.getRed() > 0.3 && collisionCheckDown.getGreen() < 0.3){
-
-                if(up)      posY += speed;
-                if(left)    posX += speed;
-                if(right)   posX -= speed;
-
-            } 
-            else if(collisionCheckLeft.getRed() > 0.3 && collisionCheckLeft.getGreen() < 0.3){
-
-                if(up)      posY += speed;
-                if(down)    posY -= speed;
-                if(right)   posX -= speed;
-
-            } 
-            else if(collisionCheckRight.getRed() > 0.3 && collisionCheckRight.getGreen() < 0.3){
-
-                if(up)      posY += speed;
-                if(down)    posY -= speed;
-                if(left)    posX += speed;
-
-            }  
-            else {
-                if(up)      posY += speed;
-                if(down)    posY -= speed;
-                if(left)    posX += speed;
-                if(right)   posX -= speed;
+            if(canGoDown && down) {
+                posY -= speed;
+            }
+            if(canGoLeft && left) {
+                posX += speed;
+            }
+            if(canGoRight && right) {
+                posX -= speed;
             }
 
             mapLayer.relocate(posX, posY);
