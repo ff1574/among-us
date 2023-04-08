@@ -167,11 +167,15 @@ public class v3 extends Application {
 
             if(isMaster) {
 
-                //Check background RGB for collision
+                // Check background RGB for collision
 
-                //Make crewmate always be in the middle of the screen
+                // Make crewmate always be in the middle of the screen
                 model.setX(scene.getWidth() / 2 - model.getImage().getWidth() / 2);     //Responsive when resizing window
                 model.setY(scene.getHeight() / 2 - model.getImage().getHeight() / 2);
+
+                // Flip character image so it's facing the direction it is heading
+                if(left) model.setScaleX(1);
+                if(right) model.setScaleX(-1);
             }
         }
     }
@@ -238,6 +242,7 @@ public class v3 extends Application {
 
             } else canGoRight = true;
 
+            //If movement allowed, then move playerhk
             if(canGoUp && up) {
                 posY += speed;
             }
