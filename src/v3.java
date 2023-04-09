@@ -21,6 +21,10 @@ public class v3 extends Application {
 
     //Graphics
     private final static String CREWMATE_MASTER = "playervec.png";
+    private final static String CREWMATE_MASTER_LEFT = "playerLeftfootvec.png";
+    private final static String CREWMATE_MASTER_RIGHT= "playerRightfootvec.png";
+
+
     private final static String MAP_BOTTOM = "mapFinalBottom.png";
     private final static String MAP_TOP = "mapFinalTop.png";
     private final static String MAP_RGB = "mapRGY.png";
@@ -147,13 +151,24 @@ public class v3 extends Application {
         //Crewmate Attributes
         private ImageView model = null;
         private boolean isMaster;
+        private ImageView[] modelList = null;
+        private int modelFrame = 0;
+        private int counter = 0;
 
         public CrewmateRacer(boolean isMaster){
             this.isMaster = isMaster;
 
             //If crewmate is player, give him desired model and place him on 400,250 coordinates
             if(this.isMaster) {
-                model = new ImageView(CREWMATE_MASTER);
+                this.modelList = new ImageView[]{
+                    new ImageView(CREWMATE_MASTER),
+                    new ImageView(CREWMATE_MASTER_LEFT),
+                    new ImageView(CREWMATE_MASTER),
+                    new ImageView(CREWMATE_MASTER_RIGHT),
+                   
+                };
+
+                this.model = modelList[modelFrame];
             } 
             //If crewmate is something else, do something else
             else {
@@ -166,6 +181,19 @@ public class v3 extends Application {
         public void update() {
 
             if(isMaster) {
+
+                if(left || right || up || down){
+                    if(counter %7 ==0 ){
+                        modelFrame = (modelFrame +1) % modelList.length;
+                        model = modelList[modelFrame];
+                       this.getChildren().set(0, model);
+                    }
+
+                }
+
+           
+               
+                counter++;
 
                 // Check background RGB for collision
 
@@ -197,6 +225,7 @@ public class v3 extends Application {
 
         // Function for moving map, updating everything needed
         public void update() {
+        
 
             // Player Position
             playerPosX = -posX + (int)(scene.getWidth() / 2); //Calculating the fact that our player is now in the middle of the screen
