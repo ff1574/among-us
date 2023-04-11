@@ -1,0 +1,40 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "vmArgs": "--module-path D:\\Downloads\\openjfx-19.0.2.1_windows-x64_bin-sdk\\javafx-sdk-19.0.2.1\\lib --add-modules javafx.controls,javafx.fxml"
+
+        },
+        {
+            "type": "java",
+            "name": "ClientV3",
+            "request": "launch",
+            "mainClass": "ClientV3",
+            "projectName": "among-us_aab9f021",
+            "vmArgs": "--module-path D:\\Downloads\\openjfx-19.0.2.1_windows-x64_bin-sdk\\javafx-sdk-19.0.2.1\\lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "ServerV1",
+            "request": "launch",
+            "mainClass": "ServerV1",
+            "projectName": "among-us_aab9f021",
+            "vmArgs": "--module-path D:\\Downloads\\openjfx-19.0.2.1_windows-x64_bin-sdk\\javafx-sdk-19.0.2.1\\lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "v3",
+            "request": "launch",
+            "mainClass": "v3",
+            "projectName": "among-us_aab9f021",
+            "vmArgs": "--module-path D:\\Downloads\\openjfx-19.0.2.1_windows-x64_bin-sdk\\javafx-sdk-19.0.2.1\\lib --add-modules javafx.controls,javafx.fxml"
+        }
+    ]
+}
