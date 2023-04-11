@@ -129,8 +129,8 @@ public class v3 extends Application {
                             taskControl = true;//the task is coppleted,
                             //KeyReleased not immediately relevant
                             break;
-                            default:
-                            break;
+                             default:
+                        break;
                     }
 
                 }
@@ -248,7 +248,7 @@ public class v3 extends Application {
     class MovableBackground extends Pane {
 
         // Map attributes
-        private int posX = -500, posY = -500, playerPosX, playerPosY, speed = 10;
+        private int posX = -500, posY = -500, playerPosX, playerPosY, speed = 5;
         boolean canGoUp = true;
         boolean canGoDown = true;
         boolean canGoLeft = true;

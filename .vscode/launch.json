@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "type": "java",
             "name": "Current File",
@@ -16,6 +17,14 @@
             "name": "v3",
             "request": "launch",
             "mainClass": "v3",
+            "projectName": "among-us_aab9f021",
+            "vmArgs": "--module-path D:\\Downloads\\openjfx-19.0.2.1_windows-x64_bin-sdk\\javafx-sdk-19.0.2.1\\lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "v4withdummys",
+            "request": "launch",
+            "mainClass": "v4withdummys",
             "projectName": "among-us_aab9f021",
             "vmArgs": "--module-path D:\\Downloads\\openjfx-19.0.2.1_windows-x64_bin-sdk\\javafx-sdk-19.0.2.1\\lib --add-modules javafx.controls,javafx.fxml"
         }
