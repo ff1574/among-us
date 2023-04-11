@@ -68,10 +68,13 @@ public class ServerV1 {
                 // Tell client what ID they were assigned
                 oos.writeObject(playerID);
 
+                // While client is connected
                 while(!socket.isClosed()) {
                     try {
+                        // Read data
                         Object data = ois.readObject();
 
+                        // If its clients player data, take it and broadcast it to other players
                         if(data instanceof Player) {
                             Player player = (Player) data;
                             broadcast(player);
@@ -85,6 +88,7 @@ public class ServerV1 {
             }
         } 
 
+        // Function that broadcasts to all players on the list
         private void broadcast(Player player) {
             for(int i = 1; i <= playerList.size(); i++) {
                 try {

@@ -184,8 +184,10 @@ public class ClientV3 extends Application {
 
     //Function that actively sends data to server
     public void talkToServer() {
+        // Create a player file
         masterPlayer = new Player(playerID, playerPosX, playerPosY);
         while(true) {
+            // Always update player position, then send it to server
             masterPlayer.setPlayerPosX(playerPosX);
             masterPlayer.setPlayerPosY(playerPosY);
             try {
@@ -200,20 +202,29 @@ public class ClientV3 extends Application {
     public void listenToServer() {
         while(true) {
             try {
+                //Read data
                 Object data = ois.readObject();
 
+                //If its player data
                 if(data instanceof Player) {
                     Player player = (Player) data;
 
+                    //And it's the players own ID
                     if(player.getPlayerID() == playerID) {
+                        //Then assign the player to the HashMap
                         playerList.put(playerID, crewmateMaster);
                     }
+                    //If it's not the players ID
                     else {
+                        //And the other player is not in the HashMap
                         if(!playerList.containsKey(player.getPlayerID())) {
+                            //Create a new Crewmate, and assign player to HashMap
                             CrewmateRacer newPlayer = new CrewmateRacer(false);
                             playerList.put(player.getPlayerID(), newPlayer);
                             Platform.runLater(() -> root.getChildren().add(newPlayer));
                         }
+                        //Try to get the model to move, however this doesn't work at all because server is getting exceptions
+                        playerList.get(player.getPlayerID()).model.relocate(player.getPlayerPosX(), player.getPlayerPosY());
                     }
                 }
 
@@ -221,6 +232,7 @@ public class ClientV3 extends Application {
                 if(data instanceof Integer) {
                     playerID = (Integer) data;
                     System.out.println("My player ID: " + playerID);
+                    //And then start talking to the server
                     new Thread(() -> {talkToServer();}).start();
                 }
             } catch (ClassNotFoundException e) {
