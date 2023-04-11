@@ -1,18 +1,15 @@
 import java.io.*;
-import java.net.*;
 
 public class Player implements Serializable {
     private static final long serialVersionUID = 1L;
     private int playerPosX;
     private int playerPosY;
     private int playerID;
-    private Socket socket;
 
-    public Player(int playerID, int playerPosX, int playerPosY, Socket socket) {
+    public Player(int playerID, int playerPosX, int playerPosY) {
         this.playerPosX = playerPosX;
         this.playerPosY = playerPosY;
         this.playerID = playerID;
-        this.socket = socket;
     }
 
     public int getPlayerPosX() {
@@ -41,9 +38,5 @@ public class Player implements Serializable {
 
     public void setPlayerID(int playerID) {
         this.playerID = playerID;
-    }
-
-    public Socket getSocket() {
-        return socket;
     }
 }
