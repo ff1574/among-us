@@ -1,5 +1,6 @@
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -37,7 +38,6 @@ public class v3 extends Application {
     MovableBackground movableBottom = null;
     MovableBackground movableTop = null;
     MovableBackground movableRGB = null;
-    Task task = null;
 
     // Update Timer
     AnimationTimer updateTimer = null;
@@ -49,6 +49,17 @@ public class v3 extends Application {
     // Collision Detection
     PixelReader pr = null;
     Image rgbMap;
+
+    // task control
+    /**
+     * so I initially tried to make a task class, however no matter which way I
+     * looked at it I couldn't correctly pull the getBlue() from the Movablergb to properly instantiate it
+     * what I settled on so we have something is literally an image view controlled by
+     * the booleans below, obv this won't initially scale for multiple seperate events but it could be useful anyway,
+     * and it does mean we technically have (an) event
+     */
+    boolean taskArea;//true if you are in a task area
+    boolean taskControl;//true if you interact (in this case just press space)
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -82,10 +93,9 @@ public class v3 extends Application {
         pr = rgbMap.getPixelReader();
 
         // New task object
-        task = new Task(TASKEVENT_TEST);
 
         // Add components to root
-        this.root.getChildren().addAll(movableRGB, movableBottom, crewmateMaster, movableTop,task);
+        this.root.getChildren().addAll(movableRGB, movableBottom, crewmateMaster, movableTop);
 
         // Initialize window
         scene = new Scene(root, 1200, 800);
@@ -111,6 +121,15 @@ public class v3 extends Application {
                         break;
                     default:
                         break;
+                }
+                //task player control
+                if (taskArea) {
+                    switch (event.getCode()) {
+                        case SPACE:
+                            taskControl = true;//the task is coppleted,
+                            //KeyReleased not immediately relevant
+                    }
+
                 }
             }
         });
@@ -143,8 +162,10 @@ public class v3 extends Application {
             public void handle(long now) {
                 crewmateMaster.update();
                 movableRGB.update();
+
                 movableBottom.update();
                 movableTop.update();
+
             }
         };
         updateTimer.start();
@@ -219,24 +240,7 @@ public class v3 extends Application {
         }
     }
 
-    //starter for task events, requires an update method maybe? definitely requires some kind of Key Event Listener
-    class Task extends Pane {
-        public Task(String path) {
-            this.path = path;
-            this.taskImage = new ImageView(path);
-            if (TaskEvent) {
-                this.getChildren().add(taskImage);
-                System.out.println("Task Time");
-            } else {
-                this.getChildren().remove(taskImage);
-            }
-        }
-        
-        boolean TaskEvent;
-        String path;
-        ImageView taskImage = null;
-
-    }
+    ImageView taskEvent = new ImageView(TASKEVENT_TEST);
 
     class MovableBackground extends Pane {
 
@@ -273,28 +277,36 @@ public class v3 extends Application {
             Color collisionCheckLeft = pr.getColor(playerPosX - 10, playerPosY);
             Color collisionCheckRight = pr.getColor(playerPosX + 10, playerPosY);
 
-            Color TaskCheck = pr.getColor(playerPosX, playerPosY);
+            Color TaskCheck = pr.getColor(playerPosX, playerPosY);//how we calculate task area, I couldn't get player position unless we get it here
 
-            // For testing RGB collision
-           // System.out.printf("Red: %.0f Green: %.0f Blue: %.0f\n",
-          //collisionCheckUp.getRed(), collisionCheckUp.getGreen(),
-        //collisionCheckUp.getBlue());
+            if (TaskCheck.getBlue() > 0.3 && TaskCheck.getGreen() < 0.3) {
+                if (!taskControl) {//checkng if the player completed task
+                    if (!this.getChildren().contains(taskEvent)) {//seeing if the task exists in the first place
+                        this.getChildren().add(taskEvent);//adding the task ImageView
+                        taskArea = true;//allowing task player control
 
-        System.out.println(TaskCheck.getBlue());
-            // System.out.printf("Up: %f\nDown: %f\nLeft: %f\nRight: %f\n",
-            // collisionCheckUp.getRed(), collisionCheckDown.getRed(),
-            // collisionCheckLeft.getRed(), collisionCheckRight.getRed());
+                    }
+                } else {
+                    //testing if player completes task
+                    if (this.getChildren().contains(taskEvent)) {
+                        this.getChildren().remove(taskEvent);
 
-            // Restrict movement based on collision checkers
-            if (TaskCheck.getBlue() > 0.6) {
-                task.TaskEvent = true;
+                    }
+                }
+
+            } else {
+                //checking if out of task area
+                if (this.getChildren().contains(taskEvent)) {
+                    this.getChildren().remove(taskEvent);
+
+                }
+                //resetting task Controls
+                taskControl = false;
                 
 
-            } else
-                task.TaskEvent=false;
+            }
 
             if (collisionCheckUp.getRed() > 0.3 && collisionCheckUp.getGreen() < 0.3) {
-
                 canGoUp = false;
 
             } else
