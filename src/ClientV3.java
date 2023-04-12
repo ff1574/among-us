@@ -192,6 +192,11 @@ public class ClientV3 extends Application {
             masterPlayer.setPlayerPosY(playerPosY);
             try {
                 oos.writeObject(masterPlayer);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -10,7 +10,8 @@ public class ServerV1 {
 
     // Player Attributes
     private int playerID = 1;
-    HashMap<Integer, ClientThread> playerList = new HashMap<>();
+    Vector<ObjectOutputStream> playerList = new Vector<>();
+    Object lock = new Object();
 
     private boolean keepGoing = true;
 
@@ -30,7 +31,6 @@ public class ServerV1 {
                     // Accept players
                     cSocket = sSocket.accept();
                     ClientThread ct = new ClientThread(playerID, cSocket);
-                    playerList.put(playerID, ct);
                     ct.start();
                     playerID++;
                 }
@@ -65,6 +65,8 @@ public class ServerV1 {
                 oos = new ObjectOutputStream(socket.getOutputStream());
                 ois = new ObjectInputStream(socket.getInputStream());
 
+                playerList.add(oos);
+
                 // Tell client what ID they were assigned
                 oos.writeObject(playerID);
 
@@ -90,13 +92,16 @@ public class ServerV1 {
 
         // Function that broadcasts to all players on the list
         private void broadcast(Player player) {
-            for(int i = 1; i <= playerList.size(); i++) {
-                try {
-                    playerList.get(i).oos.writeObject(player);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            synchronized(lock) {
+                for(int i = 0; i < playerList.size(); i++) {
+                    try {
+                        playerList.get(i).writeObject(player);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+
         }
     }
 
