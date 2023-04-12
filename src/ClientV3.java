@@ -41,8 +41,6 @@ public class ClientV3 extends Application {
 
     //Crewmates
     private int playerID;
-    private int playerPosX, playerPosY;
-    private Player masterPlayer;
     private CrewmateRacer crewmateMaster = null;
     private HashMap<Integer, CrewmateRacer> playerList = new HashMap<>();
 
@@ -184,14 +182,20 @@ public class ClientV3 extends Application {
 
     //Function that actively sends data to server
     public void talkToServer() {
-        // Create a player file
-        masterPlayer = new Player(playerID, playerPosX, playerPosY);
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         while(true) {
             // Always update player position, then send it to server
-            masterPlayer.setPlayerPosX(playerPosX);
-            masterPlayer.setPlayerPosY(playerPosY);
+            int playerPosX = movableRGB.getPlayerPosX();
+            int playerPosY = movableRGB.getPlayerPosY();
+            Player player = new Player(playerID, playerPosX, playerPosY);
             try {
-                oos.writeObject(masterPlayer);
+                if(oos != null) {
+                    oos.writeObject(player);
+                }
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -228,7 +232,6 @@ public class ClientV3 extends Application {
                             playerList.put(player.getPlayerID(), newPlayer);
                             Platform.runLater(() -> root.getChildren().add(newPlayer));
                         }
-                        //Try to get the model to move, however this doesn't work at all because server is getting exceptions
                         playerList.get(player.getPlayerID()).model.relocate(player.getPlayerPosX(), player.getPlayerPosY());
                     }
                 }
@@ -290,7 +293,7 @@ public class ClientV3 extends Application {
     class MovableBackground extends Pane {
 
         //Map attributes
-        private int posX = -1500, posY = -200, speed = 5;
+        private int posX = -1500, posY = -200, playerPosX, playerPosY, speed = 5;
         boolean canGoUp = true;
         boolean canGoDown = true;
         boolean canGoLeft = true;
@@ -364,6 +367,14 @@ public class ClientV3 extends Application {
             }
 
             mapLayer.relocate(posX, posY);
+        }
+
+        public int getPlayerPosX() {
+            return playerPosX;
+        }
+
+        public int getPlayerPosY() {
+            return playerPosY;
         }
     }
 
