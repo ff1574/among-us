@@ -183,7 +183,7 @@ public class ClientV3 extends Application {
     //Function that actively sends data to server
     public void talkToServer() {
         try {
-            Thread.sleep(300);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -230,9 +230,10 @@ public class ClientV3 extends Application {
                             //Create a new Crewmate, and assign player to HashMap
                             CrewmateRacer newPlayer = new CrewmateRacer(false);
                             playerList.put(player.getPlayerID(), newPlayer);
-                            Platform.runLater(() -> root.getChildren().add(newPlayer));
+                            Platform.runLater(() -> movableBottom.getChildren().add(newPlayer));
                         }
-                        playerList.get(player.getPlayerID()).model.relocate(player.getPlayerPosX(), player.getPlayerPosY());
+                        playerList.get(player.getPlayerID()).model.relocate(player.getPlayerPosX() + movableRGB.getPosX(), player.getPlayerPosY() + movableRGB.getPosY());
+                        System.out.println("X: " + player.getPlayerPosX() + " Y: " + player.getPlayerPosY());
                     }
                 }
 
@@ -352,6 +353,12 @@ public class ClientV3 extends Application {
 
             } else canGoRight = true;
 
+            //Noclip for testing
+            canGoRight = true;
+            canGoDown = true;
+            canGoLeft = true;
+            canGoUp = true;
+
             //If movement allowed, then move playerhk
             if(canGoUp && up) {
                 posY += speed;
@@ -367,6 +374,14 @@ public class ClientV3 extends Application {
             }
 
             mapLayer.relocate(posX, posY);
+        }
+
+        public int getPosX() {
+            return posX;
+        }
+
+        public int getPosY() {
+            return posY;
         }
 
         public int getPlayerPosX() {
