@@ -271,6 +271,7 @@ public class ClientV4 extends Application {
                         }
                         Thread t = new Thread(() -> {
                             synchronized(playerList){
+
                             playerList.get(player.getPlayerID()).model.relocate(
                                     player.getPlayerPosX() + movableRGB.getPosX() - 20,/*I get a null pointer exception here, no idea why */
                                     player.getPlayerPosY() + movableRGB.getPosY() - 70);
@@ -360,6 +361,8 @@ public class ClientV4 extends Application {
                     model.setScaleX(-1);
             }
             else {
+               // movementAnimation();
+               // counter++;
 
             }
             if(counter > 200000000) counter = 0;
@@ -376,6 +379,11 @@ public class ClientV4 extends Application {
             }
         }
     }
+    /**
+     * Event blocks
+     * for voting 
+     * - if isMaster between Y-650 to 450 X-2200 to 1900
+     */
 
     class MovableBackground extends Pane {
 
