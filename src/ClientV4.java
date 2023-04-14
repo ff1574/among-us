@@ -261,6 +261,7 @@ public class ClientV4 extends Application {
                             playerList.put(player.getPlayerID(), newPlayer);
                             Platform.runLater(() -> movableBottom.getChildren().add(newPlayer));
                         }
+                        // Handles null pointers, client tried to move other players with no information gotten from MovableBG
                         if(waitOnConnect) {
                             try {
                                 Thread.sleep(500);
@@ -269,20 +270,14 @@ public class ClientV4 extends Application {
                                 e.printStackTrace();
                             }
                         }
-                        Thread t = new Thread(() -> {
+                        // Thread that handles only moving the player sprites based on their position
+                        new Thread(() -> {
+                            int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
+                            int posY = player.getPlayerPosY() + movableRGB.getPosY() - 70;
                             synchronized(playerList){
-
-                            playerList.get(player.getPlayerID()).model.relocate(
-                                    player.getPlayerPosX() + movableRGB.getPosX() - 20,/*I get a null pointer exception here, no idea why */
-                                    player.getPlayerPosY() + movableRGB.getPosY() - 70);
+                                playerList.get(player.getPlayerID()).model.relocate(posX, posY);
                                 }
-                        });
-                        /*
-                         * for some reason this offset
-                         * seems effective, and putting
-                         * it in a thread helps it update quickly/effectively.
-                         */
-                        t.start();
+                        }).start();
 
                         //System.out.println("X: " + player.getPlayerPosX() + " Y: " + player.getPlayerPosY());
                     }
