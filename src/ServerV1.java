@@ -46,7 +46,6 @@ public class ServerV1 {
         // Player attributes
         private Socket socket;
         private int playerID;
-        private Player player;
 
         // Communication Attributes
         private ObjectOutputStream oos = null;
@@ -55,7 +54,6 @@ public class ServerV1 {
         public ClientThread(int playerID, Socket socket) {
             this.playerID = playerID;
             this.socket = socket;
-            this.player = new Player(playerID, 1500, 200);
         }
 
         public void run() {

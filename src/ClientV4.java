@@ -224,7 +224,7 @@ public class ClientV4 extends Application {
                     oos.writeObject(player);
                 }
                 try {
-                    Thread.sleep(5);
+                    Thread.sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -275,8 +275,8 @@ public class ClientV4 extends Application {
                             int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
                             int posY = player.getPlayerPosY() + movableRGB.getPosY() - 70;
                             synchronized(playerList){
-                                playerList.get(player.getPlayerID()).model.relocate(posX, posY);
-                                }
+                                Platform.runLater(() -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
+                            }
                         }).start();
 
                         //System.out.println("X: " + player.getPlayerPosX() + " Y: " + player.getPlayerPosY());
