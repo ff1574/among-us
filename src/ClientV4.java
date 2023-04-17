@@ -1,6 +1,6 @@
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
+import java.util.*;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -63,9 +63,22 @@ public class ClientV4 extends Application {
     private Image rgbMap;
 
     // Task Attributes
-    private Task genericTask;
-    boolean taskArea;
-    boolean taskControl;
+    private ArrayList<Task> taskList = new ArrayList<>();
+    // private Task mapTask;
+    // private Task rudderTask;
+    // private Task gunTask;
+    // private Task mastTask;
+    // private Task cannonTask;
+    // private Task bedTask;
+    // private Task captainQuartersTask;
+    // private Task upperStorageTask;
+    // private Task sleepingQuartersTask;
+    // private Task dineHallTask;
+    // private Task pumpTask;
+    // private Task lowerStorageTask;
+
+    private boolean taskArea;
+    private boolean taskControl;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -121,7 +134,18 @@ public class ClientV4 extends Application {
         movableTop = new MovableBackground(MAP_TOP);
 
         // Create Tasks
-        genericTask = new Task();
+        // mapTask = new Task("MAP");
+        // rudderTask = new Task("RUDDER");
+        // gunTask = new Task("GUN");
+        // mastTask = new Task("MAST");
+        // cannonTask = new Task("CANNON");
+        // bedTask = new Task("BED");
+        // captainQuartersTask = new Task("CAPTAINQUARTERS");
+        // upperStorageTask = new Task("UPPERSTORAGE");
+        // sleepingQuartersTask = new Task("SLEEPINGQUARTERS");
+        // dineHallTask = new Task("DINEHALL");
+        // pumpTask = new Task("PUMP");
+        // lowerStorageTask = new Task("LOWERSTORAGE");
 
         // Collision Detection
         rgbMap = new Image(MAP_RGB);
@@ -201,7 +225,6 @@ public class ClientV4 extends Application {
                 movableRGB.update();
                 movableBottom.update();
                 movableTop.update();
-                genericTask.update();
             }
         };
         updateTimer.start();
@@ -224,7 +247,7 @@ public class ClientV4 extends Application {
                     oos.writeObject(player);
                 }
                 try {
-                    Thread.sleep(1);
+                    Thread.sleep(5);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -275,8 +298,8 @@ public class ClientV4 extends Application {
                             int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
                             int posY = player.getPlayerPosY() + movableRGB.getPosY() - 70;
                             synchronized(playerList){
-                                Platform.runLater(() -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
-                            }
+                                playerList.get(player.getPlayerID()).model.relocate(posX, posY);
+                                }
                         }).start();
 
                         //System.out.println("X: " + player.getPlayerPosX() + " Y: " + player.getPlayerPosY());
@@ -292,6 +315,32 @@ public class ClientV4 extends Application {
                         talkToServer();
                     }).start();
                 }
+
+                // Receive different kinds of String dataa
+                if (data instanceof String) {
+                    String string = (String) data;
+                    
+                    // See what type of data it is
+                    String[] dataType = string.split(":");
+
+                    // If it is task data
+                    if(dataType[0].equals("TASKS")) {
+
+                        // Split to see which tasks have been received
+                        String[] tasks = dataType[1].split(",");
+                        System.out.print("My tasks are:");
+
+                        // For each task given
+                        for(String task : tasks) {
+                            System.out.print(" " + task);
+
+                            // Create it and add it to the task list
+                            Task newTask = new Task(task);
+                            taskList.add(newTask);
+                        }
+                    }
+                }
+
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -493,16 +542,17 @@ public class ClientV4 extends Application {
     }
 
     class Task extends Pane{
+        private String taskType;
         private ImageView taskEvent;
 
-        public Task() {
+        public Task(String taskType) {
+            this.taskType = taskType;
             taskEvent = new ImageView(TASKEVENT_TEST);
         }
 
         public void update() {
 
             Color taskCheck = pr.getColor(movableRGB.getPlayerPosX(), movableRGB.getPlayerPosY());
-            System.out.println(movableRGB.getPlayerPosX() + ", " + movableRGB.getPlayerPosY());
 
             if (taskCheck.getBlue() > 0.3 && taskCheck.getGreen() < 0.3) {
                 if (!taskControl) {//checkng if the player completed task
