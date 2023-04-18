@@ -34,20 +34,13 @@ public class ClientV4 extends Application {
     private AnchorPane root;
 
     // Graphics
-    private final static String CREWMATE_MASTER = 
-    "playervec.png";
-    private final static String CREWMATE_MASTER_LEFT = 
-    "playerLeftfootvec.png";
-    private final static String CREWMATE_MASTER_RIGHT = 
-    "playerRightfootvec.png";
-    private final static String MAP_BOTTOM = 
-    "mapFinalBottom.png";
-    private final static String MAP_TOP = 
-    "mapFinalTop.png";
-    private final static String MAP_RGB = 
-    "mapRGB.png";
-    private final static String TASKEVENT_TEST = 
-    "TaskEvent.png";
+    private final static String CREWMATE_MASTER = "playervec.png";
+    private final static String CREWMATE_MASTER_LEFT = "playerLeftfootvec.png";
+    private final static String CREWMATE_MASTER_RIGHT = "playerRightfootvec.png";
+    private final static String MAP_BOTTOM = "mapFinalBottom.png";
+    private final static String MAP_TOP = "mapFinalTop.png";
+    private final static String MAP_RGB = "mapRGB.png";
+    private final static String TASKEVENT_TEST = "TaskEvent.png";
 
     // Crewmates
     private int playerID;
@@ -141,10 +134,9 @@ public class ClientV4 extends Application {
         scene = new Scene(root, 1200, 800);
         stage.setScene(scene);
         stage.show();
-        //zoomed in for better immersion/other players actions less visible
+        // zoomed in for better immersion/other players actions less visible
         root.setScaleX(1.5);
         root.setScaleY(1.5);
-    
 
         // Keyboard Control
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -170,14 +162,14 @@ public class ClientV4 extends Application {
                 }
 
                 // Doing tasks
-                if(taskArea) {
+                if (taskArea) {
                     switch (event.getCode()) {
                         case SPACE:
-                        taskControl = true;
-                          
-                        break;
+                            taskControl = true;
+
+                            break;
                         default:
-                        break;
+                            break;
                     }
                 }
             }
@@ -273,8 +265,9 @@ public class ClientV4 extends Application {
                             playerList.put(player.getPlayerID(), newPlayer);
                             Platform.runLater(() -> movableBottom.getChildren().add(newPlayer));
                         }
-                        // Handles null pointers, client tried to move other players with no information gotten from MovableBG
-                        if(waitOnConnect) {
+                        // Handles null pointers, client tried to move other players with no information
+                        // gotten from MovableBG
+                        if (waitOnConnect) {
                             try {
                                 Thread.sleep(500);
                                 waitOnConnect = false;
@@ -286,12 +279,13 @@ public class ClientV4 extends Application {
                         new Thread(() -> {
                             int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
                             int posY = player.getPlayerPosY() + movableRGB.getPosY() - 70;
-                            synchronized(playerList){
+                            synchronized (playerList) {
                                 playerList.get(player.getPlayerID()).model.relocate(posX, posY);
-                                }
+                            }
                         }).start();
 
-                        //System.out.println("X: " + player.getPlayerPosX() + " Y: " + player.getPlayerPosY());
+                        // System.out.println("X: " + player.getPlayerPosX() + " Y: " +
+                        // player.getPlayerPosY());
                     }
                 }
 
@@ -329,20 +323,20 @@ public class ClientV4 extends Application {
             // coordinates
             if (this.isMaster) {
                 this.modelList = new ImageView[] {
-                    new ImageView(CREWMATE_MASTER),
-                    new ImageView(CREWMATE_MASTER_LEFT),
-                    new ImageView(CREWMATE_MASTER),
-                  new ImageView(CREWMATE_MASTER_RIGHT)
+                        new ImageView(CREWMATE_MASTER),
+                        new ImageView(CREWMATE_MASTER_LEFT),
+                        new ImageView(CREWMATE_MASTER),
+                        new ImageView(CREWMATE_MASTER_RIGHT)
                 };
                 this.model = modelList[modelFrame];
             }
             // If crewmate is something else, do something else
             else {
                 this.modelList = new ImageView[] {
-                    new ImageView(CREWMATE_MASTER),
-                    new ImageView(CREWMATE_MASTER_LEFT),
-                    new ImageView(CREWMATE_MASTER),
-                    new ImageView(CREWMATE_MASTER_RIGHT)
+                        new ImageView(CREWMATE_MASTER),
+                        new ImageView(CREWMATE_MASTER_LEFT),
+                        new ImageView(CREWMATE_MASTER),
+                        new ImageView(CREWMATE_MASTER_RIGHT)
                 };
                 this.model = modelList[modelFrame];
             }
@@ -366,13 +360,13 @@ public class ClientV4 extends Application {
                     model.setScaleX(1);
                 if (right)
                     model.setScaleX(-1);
-            }
-            else {
-               // movementAnimation();
-               // counter++;
+            } else {
+                // movementAnimation();
+                // counter++;
 
             }
-            if(counter > 200000000) counter = 0;
+            if (counter > 200000000)
+                counter = 0;
         }
 
         // Function for animating the character sprite
@@ -386,46 +380,11 @@ public class ClientV4 extends Application {
             }
         }
     }
-    /**
-     * Event blocks - tasks are generally named (i'll figure out specifics in coming days)
-     * Voting block
-     * - Y (650 - 450), X (2200 - 1900)
-     * 
-     * Steer ship
-     * - X (1380 - 1580), Y (420 - 640)
-     * 
-     * Hoist Mast
-     * - X (2320 - 2545), Y (450 - 650)
-     * 
-     * Read Map/plot course
-     * - X (750 - 1130), Y (680 - 975)
-     * 
-     * Sick Bay
-     * - X (1325 - 1725), Y (850 - 1075)
-     * 
-     * Crew Dorms
-     * - X (1025 - 1480), Y (1255 - 1565)
-     * 
-     * Mess Hall/Cleaning task
-     * - X (1685 - 1960), Y (1275 - 1560)
-     * 
-     * Storage
-     * - X (1540 - 2110), Y (1625 - 1890)
-     * 
-     * Pump room
-     * - X (2595 - 3095), Y (1370 - 1600)
-     * 
-     * Ammunition room
-     * - X (3080, 3580), Y (875, 1110)
-     * 
-     * Cannons
-     * - X (3005 - 3395), Y (610 - 730)
-     */
 
     class MovableBackground extends Pane {
 
         // Map attributes
-        private int posX = -1500, posY = -200, playerPosX, playerPosY, speed = 5;
+        private int posX = -1500, posY = -200, playerPosX, playerPosY, speed = 10;
         boolean canGoUp = true;
         boolean canGoDown = true;
         boolean canGoLeft = true;
@@ -495,10 +454,12 @@ public class ClientV4 extends Application {
                 canGoRight = true;
 
             // Noclip for testing
-           /*  canGoRight = true;
-            canGoDown = true;
-            canGoLeft = true;
-            canGoUp = true;*/
+            /*
+             * canGoRight = true;
+             * canGoDown = true;
+             * canGoLeft = true;
+             * canGoUp = true;
+             */
 
             // If movement allowed, then move playerhk
             if (canGoUp && up) {
@@ -534,13 +495,50 @@ public class ClientV4 extends Application {
         }
     }
 
-    class Task extends Pane{
+    /**
+     * Event blocks - tasks are generally named (i'll figure out specifics in coming
+     * days)
+     * Voting block
+     * - X (1900 - 2200), Y (450 - 650)
+     * 
+     * Steer ship
+     * - X (1380 - 1580), Y (420 - 640)
+     * 
+     * Hoist Mast
+     * - X (2320 - 2545), Y (450 - 650)
+     * 
+     * Read Map/plot course
+     * - X (750 - 1130), Y (680 - 975)
+     * 
+     * Sick Bay
+     * - X (1325 - 1725), Y (850 - 1075)
+     * 
+     * Crew Dorms
+     * - X (1025 - 1480), Y (1255 - 1565)
+     * 
+     * Mess Hall/Cleaning task
+     * - X (1685 - 1960), Y (1275 - 1560)
+     * 
+     * Storage
+     * - X (1540 - 2110), Y (1625 - 1890)
+     * 
+     * Pump room
+     * - X (2595 - 3095), Y (1370 - 1600)
+     * 
+     * Ammunition room
+     * - X (3080, 3580), Y (875, 1110)
+     * 
+     * Cannons
+     * - X (3005 - 3395), Y (610 - 730)
+     */
+
+    class Task extends Pane {
         private ImageView taskEvent;
 
         public Task() {
-            taskEvent = new ImageView(TASKEVENT_TEST);
-           taskEvent.setScaleX(.75);
-           taskEvent.setScaleY(.75);
+            taskEvent = new ImageView("TaskVote.png");
+            taskEvent.setScaleX(.68);
+            taskEvent.setScaleY(.68);
         }
 
         public void update() {
@@ -549,35 +547,30 @@ public class ClientV4 extends Application {
             System.out.println(movableRGB.getPlayerPosX() + ", " + movableRGB.getPlayerPosY());
 
             if (taskCheck.getBlue() > 0.3 && taskCheck.getGreen() < 0.3) {
-                if (!taskControl) {//checkng if the player completed task
-                    if (!root.getChildren().contains(taskEvent)) {//seeing if the task exists in the first place
-                        root.getChildren().add(taskEvent);//adding the task ImageView
-                        /***
-                         * commented out for lack of functionality
-                         *  */  
-                        //OuterTask outerTask = new OuterTask(root, MAP_RGB,scene);
-                            //outerTask.isActive();
-                        taskArea = true;//allowing task player control
-    
+                if (!taskControl) {// checkng if the player completed task
+                    if (!root.getChildren().contains(taskEvent)) {// seeing if the task exists in the first place
+                        root.getChildren().add(taskEvent);// adding the task ImageView
+
+                        taskArea = true;// allowing task player control
+
                     }
                 } else {
-                    //testing if player completes task
+                    // testing if player completes task
                     if (root.getChildren().contains(taskEvent)) {
                         root.getChildren().remove(taskEvent);
-    
+
                     }
                 }
-    
+
             } else {
-                //checking if out of task area
+                // checking if out of task area
                 if (root.getChildren().contains(taskEvent)) {
                     root.getChildren().remove(taskEvent);
-    
+
                 }
-                //resetting task Controls
+                // resetting task Controls
                 taskControl = false;
-                
-    
+
             }
         }
     }
