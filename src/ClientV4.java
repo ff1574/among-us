@@ -42,8 +42,6 @@ public class ClientV4 extends Application {
     private final static String MAP_RGB = "mapRGB.png";
     private final static String TASKEVENT_TEST = "TaskEvent.png";
 
-    
-
     // Crewmates
     private int playerID;
     private CrewmateRacer crewmateMaster = null;
@@ -229,7 +227,8 @@ public class ClientV4 extends Application {
                 movableRGB.update();
                 movableBottom.update();
                 movableTop.update();
-                task.taskLocation();
+                task.taskLocation();// i tried putting this both as a thread in the Task update() method and here,
+                                    // and it still wants to lag.
                 task.update();
 
             }
@@ -557,7 +556,7 @@ public class ClientV4 extends Application {
         private String taskType;
         private ImageView taskEvent;
 
-        public void setTaskEvent(String taskImage) {
+        public void setTaskEvent(String taskImage) {// used for changing the task
             this.taskEvent = new ImageView(taskImage);
         }
 
@@ -613,23 +612,24 @@ public class ClientV4 extends Application {
          * Cannons
          * - X (3005 - 3395), Y (610 - 730)
          */
-        boolean inTask = false;
 
-      public void taskLocation() {
-        ImageView specTask = null;
+        boolean inTask = false;// new boolean to control whether the task shows up
+
+        public void taskLocation() {
 
             if (this.taskEvent != null) {
                 root.getChildren().remove(taskEvent);
-            }
+            } // gets rid of the imageview if instantiated
 
-           if ((movableRGB.getPlayerPosX() > 1800 && movableRGB.getPlayerPosX() < 2200) &&
-                    (movableRGB.getPlayerPosY() > 350 && movableRGB.getPlayerPosY() < 750)) {
+            if ((movableRGB.getPlayerPosX() > 1800 && movableRGB.getPlayerPosX() < 2200) &&
+                    (movableRGB.getPlayerPosY() > 350 && movableRGB.getPlayerPosY() < 750)) {// checks locations marked
+                                                                                             // above
 
-                        inTask = true;
-                        setTaskEvent("TaskVote.png");
-                        if (taskControl) {
-                            inTask = false;
-                        }
+                inTask = true;// verifies player is in task area
+                setTaskEvent("TaskVote.png");// new image for task
+                if (taskControl) {// checks if player completed
+                    inTask = false;// takes away task if completed (see update())
+                }
 
             } else if ((movableRGB.getPlayerPosX() > 1280 && movableRGB.getPlayerPosX() < 1680) &&
                     (movableRGB.getPlayerPosY() > 320 && movableRGB.getPlayerPosY() < 740)) {
@@ -713,12 +713,12 @@ public class ClientV4 extends Application {
                 }
 
             } else {
-                if (root.getChildren().contains(this.taskEvent)) {
+                if (root.getChildren().contains(this.taskEvent)) {// again double checking to remove if invalid area
                     root.getChildren().remove(this.taskEvent);
 
                 }
-                inTask = false;
-                taskControl = false;
+                inTask = false;// taking away task
+                taskControl = false;// resetting controllablity
 
             }
 
@@ -726,17 +726,19 @@ public class ClientV4 extends Application {
 
         public void update() {
 
-            Color taskCheck = pr.getColor(movableRGB.getPlayerPosX(), movableRGB.getPlayerPosY());
-            System.out.println(movableRGB.getPlayerPosX() + " " + movableRGB.getPlayerPosY());
+            // Color taskCheck = pr.getColor(movableRGB.getPlayerPosX(),
+            // movableRGB.getPlayerPosY()); no longer relevant
+            // System.out.println(movableRGB.getPlayerPosX() + " " +
+            // movableRGB.getPlayerPosY());
 
-            if (inTask) {
+            if (inTask) {// see boolean above
                 if (!taskControl) {// checkng if the player completed task
 
                     if (!root.getChildren().contains(this.taskEvent)) {// seeing if the task exists in the first place
 
                         taskArea = true;
                         root.getChildren().add(this.taskEvent);// adding the task ImageView
-                      
+
                         // allowing task player control
 
                     }
