@@ -545,6 +545,10 @@ public class ClientV4 extends Application {
         private String taskType;
         private ImageView taskEvent;
 
+        public void setTaskEvent(String taskImage) {
+            this.taskEvent = new ImageView(taskImage);
+        }
+
         public Task(String taskType) {
             this.taskType = taskType;
             taskEvent = new ImageView(TASKEVENT_TEST);
@@ -557,6 +561,57 @@ public class ClientV4 extends Application {
             if (taskCheck.getBlue() > 0.3 && taskCheck.getGreen() < 0.3) {
                 if (!taskControl) {//checkng if the player completed task
                     if (!root.getChildren().contains(taskEvent)) {//seeing if the task exists in the first place
+                        /**
+     * Event blocks - tasks are generally named (i'll figure out specifics in coming days)
+     * Voting block
+     * - Y (650 - 450), X (2200 - 1900)
+     */ 
+    if((movableRGB.getPlayerPosX()>1900&&movableRGB.getPlayerPosX()<2200)&&
+    (movableRGB.getPlayerPosY()>450&&movableRGB.getPlayerPosY()<650) ){
+        this.setTaskEvent("TaskVote.png");
+    }
+
+
+     /* Steer ship
+     * - X (1380 - 1580), Y (420 - 640)
+     */ 
+    
+     /* Hoist Mast
+     * - X (2320 - 2545), Y (450 - 650)
+     */
+
+     /* Read Map/plot course
+     * - X (750 - 1130), Y (680 - 975)
+     */
+
+     /* Sick Bay
+     * - X (1325 - 1725), Y (850 - 1075)
+     */
+
+     /* Crew Dorms
+     * - X (1025 - 1480), Y (1255 - 1565)
+     */ 
+
+     /* Mess Hall/Cleaning task
+     * - X (1685 - 1960), Y (1275 - 1560)
+     */ 
+
+     /* Storage
+     * - X (1540 - 2110), Y (1625 - 1890)
+     */ 
+
+     /* Pump room
+     * - X (2595 - 3095), Y (1370 - 1600)
+     */ 
+
+     /* Ammunition room
+     * - X (3080, 3580), Y (875, 1110)
+     */ 
+
+     /* Cannons
+     * - X (3005 - 3395), Y (610 - 730)
+     */
+                        
                         root.getChildren().add(taskEvent);//adding the task ImageView
                         taskArea = true;//allowing task player control
     
