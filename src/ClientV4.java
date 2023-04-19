@@ -42,6 +42,8 @@ public class ClientV4 extends Application {
     private final static String MAP_RGB = "mapRGB.png";
     private final static String TASKEVENT_TEST = "TaskEvent.png";
 
+    
+
     // Crewmates
     private int playerID;
     private CrewmateRacer crewmateMaster = null;
@@ -76,6 +78,7 @@ public class ClientV4 extends Application {
     // private Task dineHallTask;
     // private Task pumpTask;
     // private Task lowerStorageTask;
+    private Task task = new Task("Generic");
 
     private boolean taskArea;
     private boolean taskControl;
@@ -99,6 +102,7 @@ public class ClientV4 extends Application {
 
         connectToServer();
         initializeScene();
+
     }
 
     // Function for connecting client to server
@@ -183,13 +187,13 @@ public class ClientV4 extends Application {
                 }
 
                 // Doing tasks
-                if(taskArea) {
+                if (taskArea) {
                     switch (event.getCode()) {
                         case SPACE:
                             taskControl = true;
-                        break;
+                            break;
                         default:
-                        break;
+                            break;
                     }
                 }
             }
@@ -225,6 +229,9 @@ public class ClientV4 extends Application {
                 movableRGB.update();
                 movableBottom.update();
                 movableTop.update();
+                task.taskLocation();
+                task.update();
+
             }
         };
         updateTimer.start();
@@ -284,8 +291,9 @@ public class ClientV4 extends Application {
                             playerList.put(player.getPlayerID(), newPlayer);
                             Platform.runLater(() -> movableBottom.getChildren().add(newPlayer));
                         }
-                        // Handles null pointers, client tried to move other players with no information gotten from MovableBG
-                        if(waitOnConnect) {
+                        // Handles null pointers, client tried to move other players with no information
+                        // gotten from MovableBG
+                        if (waitOnConnect) {
                             try {
                                 Thread.sleep(500);
                                 waitOnConnect = false;
@@ -297,12 +305,13 @@ public class ClientV4 extends Application {
                         new Thread(() -> {
                             int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
                             int posY = player.getPlayerPosY() + movableRGB.getPosY() - 70;
-                            synchronized(playerList){
+                            synchronized (playerList) {
                                 playerList.get(player.getPlayerID()).model.relocate(posX, posY);
-                                }
+                            }
                         }).start();
 
-                        //System.out.println("X: " + player.getPlayerPosX() + " Y: " + player.getPlayerPosY());
+                        // System.out.println("X: " + player.getPlayerPosX() + " Y: " +
+                        // player.getPlayerPosY());
                     }
                 }
 
@@ -319,19 +328,19 @@ public class ClientV4 extends Application {
                 // Receive different kinds of String dataa
                 if (data instanceof String) {
                     String string = (String) data;
-                    
+
                     // See what type of data it is
                     String[] dataType = string.split(":");
 
                     // If it is task data
-                    if(dataType[0].equals("TASKS")) {
+                    if (dataType[0].equals("TASKS")) {
 
                         // Split to see which tasks have been received
                         String[] tasks = dataType[1].split(",");
                         System.out.print("My tasks are:");
 
                         // For each task given
-                        for(String task : tasks) {
+                        for (String task : tasks) {
                             System.out.print(" " + task);
 
                             // Create it and add it to the task list
@@ -366,20 +375,20 @@ public class ClientV4 extends Application {
             // coordinates
             if (this.isMaster) {
                 this.modelList = new ImageView[] {
-                    new ImageView(CREWMATE_MASTER),
-                    new ImageView(CREWMATE_MASTER_LEFT),
-                    new ImageView(CREWMATE_MASTER),
-                    new ImageView(CREWMATE_MASTER_RIGHT)
+                        new ImageView(CREWMATE_MASTER),
+                        new ImageView(CREWMATE_MASTER_LEFT),
+                        new ImageView(CREWMATE_MASTER),
+                        new ImageView(CREWMATE_MASTER_RIGHT)
                 };
                 this.model = modelList[modelFrame];
             }
             // If crewmate is something else, do something else
             else {
                 this.modelList = new ImageView[] {
-                    new ImageView(CREWMATE_MASTER),
-                    new ImageView(CREWMATE_MASTER_LEFT),
-                    new ImageView(CREWMATE_MASTER),
-                    new ImageView(CREWMATE_MASTER_RIGHT)
+                        new ImageView(CREWMATE_MASTER),
+                        new ImageView(CREWMATE_MASTER_LEFT),
+                        new ImageView(CREWMATE_MASTER),
+                        new ImageView(CREWMATE_MASTER_RIGHT)
                 };
                 this.model = modelList[modelFrame];
             }
@@ -403,13 +412,13 @@ public class ClientV4 extends Application {
                     model.setScaleX(1);
                 if (right)
                     model.setScaleX(-1);
-            }
-            else {
-               // movementAnimation();
-               // counter++;
+            } else {
+                // movementAnimation();
+                // counter++;
 
             }
-            if(counter > 200000000) counter = 0;
+            if (counter > 200000000)
+                counter = 0;
         }
 
         // Function for animating the character sprite
@@ -423,9 +432,10 @@ public class ClientV4 extends Application {
             }
         }
     }
+
     /**
      * Event blocks
-     * for voting 
+     * for voting
      * - if isMaster between Y-650 to 450 X-2200 to 1900
      */
 
@@ -502,10 +512,12 @@ public class ClientV4 extends Application {
                 canGoRight = true;
 
             // Noclip for testing
-           /*  canGoRight = true;
-            canGoDown = true;
-            canGoLeft = true;
-            canGoUp = true;*/
+            /*
+             * canGoRight = true;
+             * canGoDown = true;
+             * canGoLeft = true;
+             * canGoUp = true;
+             */
 
             // If movement allowed, then move playerhk
             if (canGoUp && up) {
@@ -541,7 +553,7 @@ public class ClientV4 extends Application {
         }
     }
 
-    class Task extends Pane{
+    class Task extends Pane {
         private String taskType;
         private ImageView taskEvent;
 
@@ -552,89 +564,196 @@ public class ClientV4 extends Application {
         public Task(String taskType) {
             this.taskType = taskType;
             taskEvent = new ImageView(TASKEVENT_TEST);
+
+        }
+
+        /**
+         * Event blocks - tasks are generally named (i'll figure out specifics in coming
+         * days)
+         * Voting block
+         * - Y (650 - 450), X (2200 - 1900)
+         */
+        /*
+         * Steer ship
+         * - X (1380 - 1580), Y (420 - 640)
+         */
+        /*
+         * Hoist Mast
+         * - X (2320 - 2545), Y (450 - 650)
+         */
+        /*
+         * Read Map/plot course
+         * - X (750 - 1130), Y (680 - 975)
+         */
+        /*
+         * Sick Bay
+         * - X (1325 - 1725), Y (850 - 1075)
+         */
+        /*
+         * Crew Dorms
+         * - X (1025 - 1480), Y (1255 - 1565)
+         */
+        /*
+         * Storage
+         * - X (1540 - 2110), Y (1625 - 1890)
+         */
+        /*
+         * Mess Hall/Cleaning task
+         * - X (1685 - 1960), Y (1275 - 1560)
+         */
+        /*
+         * Pump room
+         * - X (2595 - 3095), Y (1370 - 1600)
+         */
+        /*
+         * Ammunition room
+         * - X (3080, 3580), Y (875, 1110)
+         */
+        /*
+         * Cannons
+         * - X (3005 - 3395), Y (610 - 730)
+         */
+        boolean inTask = false;
+
+      public void taskLocation() {
+        ImageView specTask = null;
+
+            if (this.taskEvent != null) {
+                root.getChildren().remove(taskEvent);
+            }
+
+           if ((movableRGB.getPlayerPosX() > 1800 && movableRGB.getPlayerPosX() < 2200) &&
+                    (movableRGB.getPlayerPosY() > 350 && movableRGB.getPlayerPosY() < 750)) {
+
+                        inTask = true;
+                        setTaskEvent("TaskVote.png");
+                        if (taskControl) {
+                            inTask = false;
+                        }
+
+            } else if ((movableRGB.getPlayerPosX() > 1280 && movableRGB.getPlayerPosX() < 1680) &&
+                    (movableRGB.getPlayerPosY() > 320 && movableRGB.getPlayerPosY() < 740)) {
+                inTask = true;
+                setTaskEvent("TaskHelm.png");
+                if (taskControl) {
+                    inTask = false;
+                }
+
+            } else if ((movableRGB.getPlayerPosX() > 2320 && movableRGB.getPlayerPosX() < 2545) &&
+                    (movableRGB.getPlayerPosY() > 450 && movableRGB.getPlayerPosY() < 650)) {
+                inTask = true;
+
+                setTaskEvent("TaskMast.png");
+                if (taskControl) {
+                    inTask = false;
+                }
+
+            } else if ((movableRGB.getPlayerPosX() > 750 && movableRGB.getPlayerPosX() < 1130) &&
+                    (movableRGB.getPlayerPosY() > 680 && movableRGB.getPlayerPosY() < 975)) {
+                inTask = true;
+                setTaskEvent("TaskNav.png");
+                if (taskControl) {
+                    inTask = false;
+                }
+
+            } else if ((movableRGB.getPlayerPosX() > 1325 && movableRGB.getPlayerPosX() < 1725) &&
+                    (movableRGB.getPlayerPosY() > 850 && movableRGB.getPlayerPosY() < 1075)) {
+                inTask = true;
+                setTaskEvent("TaskSickBay.png");
+                if (taskControl) {
+                    inTask = false;
+                }
+
+            } else if ((movableRGB.getPlayerPosX() > 1025 && movableRGB.getPlayerPosX() < 1480) &&
+                    (movableRGB.getPlayerPosY() > 1255 && movableRGB.getPlayerPosY() < 1565)) {
+                inTask = true;
+                setTaskEvent("TaskQuarters.png");
+                if (taskControl) {
+                    inTask = false;
+                }
+
+            } else if ((movableRGB.getPlayerPosX() > 1685 && movableRGB.getPlayerPosX() < 1960) &&
+                    (movableRGB.getPlayerPosY() > 1275 && movableRGB.getPlayerPosY() < 1560)) {
+                inTask = true;
+                setTaskEvent("TaskMess.png");
+                if (taskControl) {
+                    inTask = false;
+                }
+
+            } else if ((movableRGB.getPlayerPosX() > 1540 && movableRGB.getPlayerPosX() < 2100) &&
+                    (movableRGB.getPlayerPosY() > 1625 && movableRGB.getPlayerPosY() < 1890)) {
+                inTask = true;
+                setTaskEvent("TaskStorage.png");
+                if (taskControl) {
+                    inTask = false;
+                }
+
+            } else if ((movableRGB.getPlayerPosX() > 2595 && movableRGB.getPlayerPosX() < 3095) &&
+                    (movableRGB.getPlayerPosY() > 1370 && movableRGB.getPlayerPosY() < 1600)) {
+                inTask = true;
+                setTaskEvent("TaskPump.png");
+                if (taskControl) {
+                    inTask = false;
+                }
+
+            } else if ((movableRGB.getPlayerPosX() > 3080 && movableRGB.getPlayerPosX() < 3580) &&
+                    (movableRGB.getPlayerPosY() > 875 && movableRGB.getPlayerPosY() < 1110)) {
+                inTask = true;
+                setTaskEvent("TaskAmmo.png");
+                if (taskControl) {
+                    inTask = false;
+                }
+
+            } else if ((movableRGB.getPlayerPosX() > 3005 && movableRGB.getPlayerPosX() < 3395) &&
+                    (movableRGB.getPlayerPosY() > 610 && movableRGB.getPlayerPosY() < 730)) {
+                inTask = true;
+                setTaskEvent("TaskCannons.png");
+                if (taskControl) {
+                    inTask = false;
+                }
+
+            } else {
+                if (root.getChildren().contains(this.taskEvent)) {
+                    root.getChildren().remove(this.taskEvent);
+
+                }
+                inTask = false;
+                taskControl = false;
+
+            }
+
         }
 
         public void update() {
 
             Color taskCheck = pr.getColor(movableRGB.getPlayerPosX(), movableRGB.getPlayerPosY());
+            System.out.println(movableRGB.getPlayerPosX() + " " + movableRGB.getPlayerPosY());
 
-            if (taskCheck.getBlue() > 0.3 && taskCheck.getGreen() < 0.3) {
-                if (!taskControl) {//checkng if the player completed task
-                    if (!root.getChildren().contains(taskEvent)) {//seeing if the task exists in the first place
-                        /**
-     * Event blocks - tasks are generally named (i'll figure out specifics in coming days)
-     * Voting block
-     * - Y (650 - 450), X (2200 - 1900)
-     */ 
-    if((movableRGB.getPlayerPosX()>1900&&movableRGB.getPlayerPosX()<2200)&&
-    (movableRGB.getPlayerPosY()>450&&movableRGB.getPlayerPosY()<650) ){
-        this.setTaskEvent("TaskVote.png");
-    }
+            if (inTask) {
+                if (!taskControl) {// checkng if the player completed task
 
+                    if (!root.getChildren().contains(this.taskEvent)) {// seeing if the task exists in the first place
 
-     /* Steer ship
-     * - X (1380 - 1580), Y (420 - 640)
-     */ 
-    
-     /* Hoist Mast
-     * - X (2320 - 2545), Y (450 - 650)
-     */
+                        taskArea = true;
+                        root.getChildren().add(this.taskEvent);// adding the task ImageView
+                      
+                        // allowing task player control
 
-     /* Read Map/plot course
-     * - X (750 - 1130), Y (680 - 975)
-     */
-
-     /* Sick Bay
-     * - X (1325 - 1725), Y (850 - 1075)
-     */
-
-     /* Crew Dorms
-     * - X (1025 - 1480), Y (1255 - 1565)
-     */ 
-
-     /* Mess Hall/Cleaning task
-     * - X (1685 - 1960), Y (1275 - 1560)
-     */ 
-
-     /* Storage
-     * - X (1540 - 2110), Y (1625 - 1890)
-     */ 
-
-     /* Pump room
-     * - X (2595 - 3095), Y (1370 - 1600)
-     */ 
-
-     /* Ammunition room
-     * - X (3080, 3580), Y (875, 1110)
-     */ 
-
-     /* Cannons
-     * - X (3005 - 3395), Y (610 - 730)
-     */
-                        
-                        root.getChildren().add(taskEvent);//adding the task ImageView
-                        taskArea = true;//allowing task player control
-    
                     }
                 } else {
-                    //testing if player completes task
-                    if (root.getChildren().contains(taskEvent)) {
-                        root.getChildren().remove(taskEvent);
-    
-                    }
+                    // testing if player completes task
+
+                    taskControl = false;
+
                 }
-    
             } else {
-                //checking if out of task area
-                if (root.getChildren().contains(taskEvent)) {
-                    root.getChildren().remove(taskEvent);
-    
+                if (root.getChildren().contains(this.taskEvent)) {
+                    root.getChildren().remove(this.taskEvent);
+
                 }
-                //resetting task Controls
-                taskControl = false;
-                
-    
+
             }
+
         }
     }
 
