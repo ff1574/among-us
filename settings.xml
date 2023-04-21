@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<amongUsSettings>
+    <ipPORT>1234</ipPORT>
+    <playerSpeed>40.0</playerSpeed>
+    <serverIP>localhost</serverIP>
+</amongUsSettings>
