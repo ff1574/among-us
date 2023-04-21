@@ -42,7 +42,9 @@ public class ClientV4 extends Application {
     private final static String MAP_RGB = "mapRGB.png";
     private final static String TASKEVENT_TEST = "TaskEvent.png";
     private final static String MAP_TASK = "mapTask.png";
-
+    private final static String TASKEVENT_HELM = "TaskHelm.png";
+    private final static String TASKEVENT_CANNONS = "TaskCannons.png";
+    private final static String TASKEVENT_PUMP = "TaskPump.png";
     // Crewmates
     private int playerID;
     private CrewmateRacer crewmateMaster = null;
@@ -544,16 +546,56 @@ public class ClientV4 extends Application {
 
     class Task extends Pane {
         private ImageView taskEvent;
-        boolean helmCheck;
-        boolean cannonCheck;
-        boolean pumpCheck;
+        private boolean helmCheck;
+        private boolean cannonCheck;
+        private boolean pumpCheck;
+        private ImageView helmEvent;
+        private ImageView cannonEvent;
+        private ImageView pumpEvent;
+        
 
-        public Task(String taskImage) {
-            this.taskEvent = new ImageView(taskImage);
+        public Task() {
+            this.taskEvent = new ImageView(TASKEVENT_TEST);
+            this.helmEvent = new ImageView(TASKEVENT_HELM);
+            this.cannonEvent = new ImageView(TASKEVENT_CANNONS);
+            this.pumpEvent = new ImageView(TASKEVENT_PUMP);
             
             taskEvent.setScaleX(.68);
             taskEvent.setScaleY(.68);
         }
+        public void taskAdd(ImageView enterTask){/**extracted the adding of tasks to a method for easier control */
+            if (!taskControl) {// checkng if the player completed task
+                   
+                if (!root.getChildren().contains(enterTask)) {// seeing if the task exists in the first place
+                    root.getChildren().add(enterTask);// adding the task ImageView
+
+                    taskArea = true;// allowing task player control
+
+                }
+            } else {
+                // testing if player completes task
+                if (root.getChildren().contains(enterTask)) {
+                    root.getChildren().remove(enterTask);
+
+                }
+            }
+
+
+        }
+
+        public void taskRemove(ImageView enterTask){
+            
+         
+                // testing if player completes task
+                if (root.getChildren().contains(enterTask)) {
+                    root.getChildren().remove(enterTask);
+
+                }
+            
+
+
+        }
+
 
         public void update() {
 
@@ -574,43 +616,27 @@ public class ClientV4 extends Application {
             
 
             if (specificTaskCheck.getOpacity()!=0) {
-                this.taskEvent = null;
+               
 
                 if(helmCheck){
-                   Task helm = new Task("TaskHelm.png");
+                  taskAdd(helmEvent);
                 }else
                 if(cannonCheck){
-                    Task cannons = new Task("TaskCannons.png");
+                    taskAdd(cannonEvent);
                 }else
                 if(pumpCheck){
-                    Task pump = new Task("TaskPump.png");
+                    taskAdd(pumpEvent);
                 }else
                 taskEvent = new ImageView("TaskVote.png");
                 
                 
                 
-                if (!taskControl) {// checkng if the player completed task
-                   
-                    if (!root.getChildren().contains(taskEvent)) {// seeing if the task exists in the first place
-                        root.getChildren().add(taskEvent);// adding the task ImageView
-
-                        taskArea = true;// allowing task player control
-
-                    }
-                } else {
-                    // testing if player completes task
-                    if (root.getChildren().contains(taskEvent)) {
-                        root.getChildren().remove(taskEvent);
-
-                    }
-                }
-
+               
             } else {
                 // checking if out of task area
-                if (root.getChildren().contains(taskEvent)) {
-                    root.getChildren().remove(taskEvent);
-
-                }
+              taskRemove(cannonEvent);
+              taskRemove(helmEvent);
+              taskRemove(pumpEvent);
                 // resetting task Controls
                 taskControl = false;
 
