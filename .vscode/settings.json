@@ -12,6 +12,8 @@
     ],
     "java.project.sourcePaths": [
         "src",
-        "assets"
-    ]
+        "assets",
+        "."
+    ],
+    "java.dependency.syncWithFolderExplorer": true
 }

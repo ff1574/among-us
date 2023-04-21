@@ -62,7 +62,9 @@ public class ClientV4 extends Application {
 
     // Collision Detection
     private PixelReader pr = null;
+    private PixelReader taskPr = null;
     private Image rgbMap;
+    private Image taskMap;
 
     // Task Attributes
     private Task genericTask;
@@ -130,6 +132,8 @@ public class ClientV4 extends Application {
         // Collision Detection
         rgbMap = new Image(MAP_RGB);
         pr = rgbMap.getPixelReader();
+        taskMap = new Image(MAP_TASK);
+        taskPr = taskMap.getPixelReader();
 
         // Add components to root
        // this.root.getChildren().addAll(movableRGB, movableBottom, crewmateMaster, movableTop);
@@ -211,6 +215,7 @@ public class ClientV4 extends Application {
                 movableBottom.update();
                 movableTop.update();
                 genericTask.update();
+                movableTask.update();
             }
         };
         updateTimer.start();
@@ -539,20 +544,53 @@ public class ClientV4 extends Application {
 
     class Task extends Pane {
         private ImageView taskEvent;
+        boolean helmCheck;
+        boolean cannonCheck;
+        boolean pumpCheck;
 
-        public Task() {
-            taskEvent = new ImageView("TaskVote.png");
+        public Task(String taskImage) {
+            this.taskEvent = new ImageView(taskImage);
+            
             taskEvent.setScaleX(.68);
             taskEvent.setScaleY(.68);
         }
 
         public void update() {
 
-            Color taskCheck = pr.getColor(movableRGB.getPlayerPosX(), movableRGB.getPlayerPosY());
-            System.out.println(movableRGB.getPlayerPosX() + ", " + movableRGB.getPlayerPosY());
+           // Color taskCheck = pr.getColor(movableRGB.getPlayerPosX(), movableRGB.getPlayerPosY());
+           // System.out.println(movableRGB.getPlayerPosX() + ", " + movableRGB.getPlayerPosY());
+            Color specificTaskCheck = taskPr.getColor(movableTask.getPlayerPosX(), movableTask.getPlayerPosY());
+            System.out.println(specificTaskCheck.getRed()+" "+specificTaskCheck.getBlue()+" "+specificTaskCheck.getGreen());
+            if(specificTaskCheck.getRed()>0.5 && specificTaskCheck.getGreen()>0.5){
+                helmCheck = true;
+            }
+            if(specificTaskCheck.getRed()>0.5 && specificTaskCheck.getBlue()>0.5){
+                cannonCheck = true;
+            }
+            if(specificTaskCheck.getRed()<0.5 && specificTaskCheck.getGreen()>0.5){
+               pumpCheck = true;
+            }
+            
+            
 
-            if (taskCheck.getBlue() > 0.3 && taskCheck.getGreen() < 0.3) {
+            if (specificTaskCheck.getOpacity()!=0) {
+                this.taskEvent = null;
+
+                if(helmCheck){
+                   Task helm = new Task("TaskHelm.png");
+                }else
+                if(cannonCheck){
+                    Task cannons = new Task("TaskCannons.png");
+                }else
+                if(pumpCheck){
+                    Task pump = new Task("TaskPump.png");
+                }else
+                taskEvent = new ImageView("TaskVote.png");
+                
+                
+                
                 if (!taskControl) {// checkng if the player completed task
+                   
                     if (!root.getChildren().contains(taskEvent)) {// seeing if the task exists in the first place
                         root.getChildren().add(taskEvent);// adding the task ImageView
 
