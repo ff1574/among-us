@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "ClientV4",
+            "request": "launch",
+            "mainClass": "ClientV4",
+            "projectName": "among-us_20c4e447"
+        },
+        {
+            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}",

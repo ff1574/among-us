@@ -41,6 +41,7 @@ public class ClientV4 extends Application {
     private final static String MAP_TOP = "mapFinalTop.png";
     private final static String MAP_RGB = "mapRGB.png";
     private final static String TASKEVENT_TEST = "TaskEvent.png";
+    private final static String MAP_TASK = "mapTask.png";
 
     // Crewmates
     private int playerID;
@@ -51,6 +52,7 @@ public class ClientV4 extends Application {
     private MovableBackground movableBottom = null;
     private MovableBackground movableTop = null;
     private MovableBackground movableRGB = null;
+    private MovableBackground movableTask = null;
 
     // Update Timer
     private AnimationTimer updateTimer = null;
@@ -117,8 +119,10 @@ public class ClientV4 extends Application {
 
         // Create Map
         movableRGB = new MovableBackground(MAP_RGB);
+        movableTask = new MovableBackground(MAP_TASK);
         movableBottom = new MovableBackground(MAP_BOTTOM);
         movableTop = new MovableBackground(MAP_TOP);
+        
 
         // Create Tasks
         genericTask = new Task();
@@ -128,7 +132,8 @@ public class ClientV4 extends Application {
         pr = rgbMap.getPixelReader();
 
         // Add components to root
-        this.root.getChildren().addAll(movableRGB, movableBottom, crewmateMaster, movableTop);
+       // this.root.getChildren().addAll(movableRGB, movableBottom, crewmateMaster, movableTop);
+       this.root.getChildren().addAll(movableRGB,  crewmateMaster, movableTask);
 
         // Initialize window
         scene = new Scene(root, 1200, 800);
