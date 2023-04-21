@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 
+import javax.lang.model.util.ElementScanner6;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -126,7 +128,6 @@ public class ClientV4 extends Application {
         movableTask = new MovableBackground(MAP_TASK);
         movableBottom = new MovableBackground(MAP_BOTTOM);
         movableTop = new MovableBackground(MAP_TOP);
-        
 
         // Create Tasks
         genericTask = new Task();
@@ -138,8 +139,9 @@ public class ClientV4 extends Application {
         taskPr = taskMap.getPixelReader();
 
         // Add components to root
-       // this.root.getChildren().addAll(movableRGB, movableBottom, crewmateMaster, movableTop);
-       this.root.getChildren().addAll(movableRGB,  crewmateMaster, movableTask);
+        // this.root.getChildren().addAll(movableRGB, movableBottom, crewmateMaster,
+        // movableTop);
+        this.root.getChildren().addAll(movableRGB,movableTask, movableBottom, crewmateMaster, movableTop );
 
         // Initialize window
         scene = new Scene(root, 1200, 800);
@@ -552,21 +554,22 @@ public class ClientV4 extends Application {
         private ImageView helmEvent;
         private ImageView cannonEvent;
         private ImageView pumpEvent;
-        
 
         public Task() {
             this.taskEvent = new ImageView(TASKEVENT_TEST);
             this.helmEvent = new ImageView(TASKEVENT_HELM);
             this.cannonEvent = new ImageView(TASKEVENT_CANNONS);
             this.pumpEvent = new ImageView(TASKEVENT_PUMP);
-            
-            taskEvent.setScaleX(.68);
-            taskEvent.setScaleY(.68);
+
         }
-        public void taskAdd(ImageView enterTask){/**extracted the adding of tasks to a method for easier control */
+
+        public void taskAdd(ImageView enterTask) {
+            /** extracted the adding of tasks to a method for easier control */
             if (!taskControl) {// checkng if the player completed task
-                   
+
                 if (!root.getChildren().contains(enterTask)) {// seeing if the task exists in the first place
+                    enterTask.setScaleX(.68);
+                    enterTask.setScaleY(.68);
                     root.getChildren().add(enterTask);// adding the task ImageView
 
                     taskArea = true;// allowing task player control
@@ -580,63 +583,58 @@ public class ClientV4 extends Application {
                 }
             }
 
-
         }
 
-        public void taskRemove(ImageView enterTask){
-            
-         
-                // testing if player completes task
-                if (root.getChildren().contains(enterTask)) {
-                    root.getChildren().remove(enterTask);
+        public void taskRemove(ImageView enterTask) {
 
-                }
-            
+            // testing if player completes task
+            if (root.getChildren().contains(enterTask)) {
+                root.getChildren().remove(enterTask);
 
+            }
 
         }
-
 
         public void update() {
 
-           // Color taskCheck = pr.getColor(movableRGB.getPlayerPosX(), movableRGB.getPlayerPosY());
-           // System.out.println(movableRGB.getPlayerPosX() + ", " + movableRGB.getPlayerPosY());
+            // Color taskCheck = pr.getColor(movableRGB.getPlayerPosX(),
+            // movableRGB.getPlayerPosY());
+            // System.out.println(movableRGB.getPlayerPosX() + ", " +
+            // movableRGB.getPlayerPosY());
             Color specificTaskCheck = taskPr.getColor(movableTask.getPlayerPosX(), movableTask.getPlayerPosY());
-            System.out.println(specificTaskCheck.getRed()+" "+specificTaskCheck.getBlue()+" "+specificTaskCheck.getGreen());
-            if(specificTaskCheck.getRed()>0.5 && specificTaskCheck.getGreen()>0.5){
+            System.out.println(specificTaskCheck.getRed() + " " + specificTaskCheck.getBlue() + " "
+                    + specificTaskCheck.getGreen());
+            if (specificTaskCheck.getRed() > 0.5 && specificTaskCheck.getGreen() > 0.5) {
                 helmCheck = true;
-            }
-            if(specificTaskCheck.getRed()>0.5 && specificTaskCheck.getBlue()>0.5){
+            }else
+            if (specificTaskCheck.getRed() > 0.5 && specificTaskCheck.getBlue() > 0.5) {
                 cannonCheck = true;
+            }else
+            if (specificTaskCheck.getRed() < 0.5 && specificTaskCheck.getGreen() > 0.5) {
+                pumpCheck = true;
+            }else{
+                helmCheck= false;
+                cannonCheck = false;
+                pumpCheck = false;
+                
             }
-            if(specificTaskCheck.getRed()<0.5 && specificTaskCheck.getGreen()>0.5){
-               pumpCheck = true;
-            }
-            
-            
 
-            if (specificTaskCheck.getOpacity()!=0) {
-               
+            if (specificTaskCheck.getOpacity() != 0) {
 
-                if(helmCheck){
-                  taskAdd(helmEvent);
-                }else
-                if(cannonCheck){
+                if (helmCheck) {
+                    taskAdd(helmEvent);
+                } else if (cannonCheck) {
                     taskAdd(cannonEvent);
-                }else
-                if(pumpCheck){
+                } else if (pumpCheck) {
                     taskAdd(pumpEvent);
-                }else
-                taskEvent = new ImageView("TaskVote.png");
-                
-                
-                
-               
+                } else
+                    taskEvent = new ImageView("TaskVote.png");
+
             } else {
                 // checking if out of task area
-              taskRemove(cannonEvent);
-              taskRemove(helmEvent);
-              taskRemove(pumpEvent);
+                taskRemove(cannonEvent);
+                taskRemove(helmEvent);
+                taskRemove(pumpEvent);
                 // resetting task Controls
                 taskControl = false;
 
