@@ -7,12 +7,17 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -28,7 +33,18 @@ public class ClientV4 extends Application {
     private ObjectOutputStream oos = null;
     private ObjectInputStream ois = null;
 
-    // GUI Attributes
+    // GUI Attributes - start
+    private Stage stageStart;
+    private Scene sceneStart;
+    private VBox rootStart;
+    private Label ipLabel;
+    private TextField ipTextField;
+    private Label playerNameLabel;
+    private TextField playerNameTextField;
+    private Button startButton;
+    private boolean startGame = false;
+
+    // GUI Attributes - game
     private Stage stage;
     private Scene scene;
     private AnchorPane root;
@@ -66,24 +82,46 @@ public class ClientV4 extends Application {
     private boolean tasksGotten;
 
     @Override
-    public void start(Stage stage) throws Exception {
-        this.stage = stage;
-        stage.setTitle("AmongUs - Best Team");
+    public void start(Stage stageStart) throws Exception {// initialize start first
+        this.stageStart = stageStart;
+        stageStart.setTitle("START MENU");
 
-        // When closing with X, disconnect from server and stop app
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                if (socket != null) {
-                    System.exit(0); /************ NOT IMPLEMENTED ***************** */
-                }
-                System.exit(0);
-            }
+        rootStart = new VBox();
+
+        initializeStart();
+        if (startGame) {
+
+        }
+
+    }
+
+    // setting up start menu/handling
+    public void initializeStart() {
+
+        // row 1, ip info
+        ipLabel = new Label("Enter IP:");
+        ipTextField = new TextField("127.0.0.1");
+        HBox row1 = new HBox(ipLabel, ipTextField);
+
+        // row 2, player info
+        playerNameLabel = new Label("Enter a Username:");
+        playerNameTextField = new TextField();/// not sure how to send this username to the game
+        HBox row2 = new HBox(playerNameLabel, playerNameTextField);
+
+        startButton = new Button("Start Game");
+
+        rootStart.getChildren().addAll(row1, row2, startButton);
+
+        sceneStart = new Scene(rootStart, 400, 400);
+        stageStart.setScene(sceneStart);
+        stageStart.show();
+
+        startButton.setOnAction(event -> {
+            stageStart.close();
+
+            connectToServer();
+            initializeScene();
         });
-        root = new AnchorPane();
-
-        connectToServer();
-        initializeScene();
 
     }
 
@@ -110,6 +148,22 @@ public class ClientV4 extends Application {
 
     // Function for initializing the whole game
     public void initializeScene() {
+
+        this.stage = new Stage();// values for the stage/scene have to be located here since it's called by the start screen
+
+        stage.setTitle("AmongUs - Best Team");
+
+        // When closing with X, disconnect from server and stop app
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                if (socket != null) {
+                    System.exit(0); /************ NOT IMPLEMENTED ***************** */
+                }
+                System.exit(0);
+            }
+        });
+        root = new AnchorPane();
 
         // Create Player Character
         crewmateMaster = new CrewmateRacer(true);
@@ -273,7 +327,8 @@ public class ClientV4 extends Application {
                             int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
                             int posY = player.getPlayerPosY() + movableRGB.getPosY() - 65;
                             synchronized (playerList) {
-                                Platform.runLater(() -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
+                                Platform.runLater(
+                                        () -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
                             }
                         }).start();
 
@@ -320,11 +375,11 @@ public class ClientV4 extends Application {
 
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-            } catch (EOFException e)  {
-                
+            } catch (EOFException e) {
+
             } catch (IOException e) {
                 e.printStackTrace();
-            } 
+            }
         }
     }
 
@@ -505,84 +560,74 @@ public class ClientV4 extends Application {
 
             mapLayer.relocate(posX, posY);
 
-
-            if(tasksGotten) {
-                for(Task task : taskList) {
+            if (tasksGotten) {
+                for (Task task : taskList) {
                     ImageView taskImage = task.getTaskImage();
-                    if(!root.getChildren().contains(taskImage)) {
+                    if (!root.getChildren().contains(taskImage)) {
                         root.getChildren().add(taskImage);
                         taskImage.setVisible(false);
                     }
-    
-                    if(task.getTaskType().equals("TaskVote")) {
-                        if(playerPosX >= 1900 && playerPosX <= 2200 && playerPosY >= 450 && playerPosY <= 650) {
+
+                    if (task.getTaskType().equals("TaskVote")) {
+                        if (playerPosX >= 1900 && playerPosX <= 2200 && playerPosY >= 450 && playerPosY <= 650) {
                             taskImage.setVisible(true);
-                        }
-                        else {
+                        } else {
                             taskImage.setVisible(false);
                         }
                     }
-                    if(task.getTaskType().equals("TaskHelm")) {
-                        if(playerPosX >= 1380 && playerPosX <= 1580 && playerPosY >= 420 && playerPosY <= 640) {
+                    if (task.getTaskType().equals("TaskHelm")) {
+                        if (playerPosX >= 1380 && playerPosX <= 1580 && playerPosY >= 420 && playerPosY <= 640) {
                             taskImage.setVisible(true);
-                        }
-                        else {
+                        } else {
                             taskImage.setVisible(false);
                         }
                     }
-                    if(task.getTaskType().equals("TaskMast")) {
-                        if(playerPosX >= 2320 && playerPosX <= 2545 && playerPosY >= 450 && playerPosY <= 650) {
+                    if (task.getTaskType().equals("TaskMast")) {
+                        if (playerPosX >= 2320 && playerPosX <= 2545 && playerPosY >= 450 && playerPosY <= 650) {
                             taskImage.setVisible(true);
-                        }
-                        else {
+                        } else {
                             taskImage.setVisible(false);
                         }
                     }
-                    if(task.getTaskType().equals("TaskNav")) {
-                        if(playerPosX >= 750 && playerPosX <= 1130 && playerPosY >= 680 && playerPosY <= 975) {
+                    if (task.getTaskType().equals("TaskNav")) {
+                        if (playerPosX >= 750 && playerPosX <= 1130 && playerPosY >= 680 && playerPosY <= 975) {
                             taskImage.setVisible(true);
-                        }
-                        else {
+                        } else {
                             taskImage.setVisible(false);
                         }
                     }
-                    if(task.getTaskType().equals("TaskSickBay")) {
-                        if(playerPosX >= 1325 && playerPosX <= 1725 && playerPosY >= 850 && playerPosY <= 1075) {
+                    if (task.getTaskType().equals("TaskSickBay")) {
+                        if (playerPosX >= 1325 && playerPosX <= 1725 && playerPosY >= 850 && playerPosY <= 1075) {
                             taskImage.setVisible(true);
-                        }
-                        else {
+                        } else {
                             taskImage.setVisible(false);
                         }
                     }
-                    if(task.getTaskType().equals("TaskQuarters")) {
-                        if(playerPosX >= 1025 && playerPosX <= 1480 && playerPosY >= 1255 && playerPosY <= 1565) {
+                    if (task.getTaskType().equals("TaskQuarters")) {
+                        if (playerPosX >= 1025 && playerPosX <= 1480 && playerPosY >= 1255 && playerPosY <= 1565) {
                             taskImage.setVisible(true);
-                        }
-                        else {
+                        } else {
                             taskImage.setVisible(false);
                         }
                     }
-                    if(task.getTaskType().equals("TaskStorage")) {
-                        if(playerPosX >= 1540 && playerPosX <= 2110 && playerPosY >= 1625 && playerPosY <= 1890) {
+                    if (task.getTaskType().equals("TaskStorage")) {
+                        if (playerPosX >= 1540 && playerPosX <= 2110 && playerPosY >= 1625 && playerPosY <= 1890) {
                             taskImage.setVisible(true);
-                        }
-                        else {
+                        } else {
                             taskImage.setVisible(false);
                         }
                     }
-                    if(task.getTaskType().equals("TaskPump")) {
-                        if(playerPosX >= 2595 && playerPosX <= 3095 && playerPosY >= 1370 && playerPosY <= 1600) {
+                    if (task.getTaskType().equals("TaskPump")) {
+                        if (playerPosX >= 2595 && playerPosX <= 3095 && playerPosY >= 1370 && playerPosY <= 1600) {
                             taskImage.setVisible(true);
-                        }
-                        else {
+                        } else {
                             taskImage.setVisible(false);
                         }
                     }
-                    if(task.getTaskType().equals("TaskCannons")) {
-                        if(playerPosX >= 3005 && playerPosX <= 3395 && playerPosY >= 610 && playerPosY <= 730) {
+                    if (task.getTaskType().equals("TaskCannons")) {
+                        if (playerPosX >= 3005 && playerPosX <= 3395 && playerPosY >= 610 && playerPosY <= 730) {
                             taskImage.setVisible(true);
-                        }
-                        else {
+                        } else {
                             taskImage.setVisible(false);
                         }
                     }
@@ -670,8 +715,7 @@ public class ClientV4 extends Application {
          * Cannons
          * - X (3005 - 3395), Y (610 - 730)
          */
-        
-        
+
     }
 
     public static void main(String[] args) {
