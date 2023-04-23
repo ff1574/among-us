@@ -40,7 +40,6 @@ public class ClientV4 extends Application {
     private final static String MAP_BOTTOM = "mapFinalBottom.png";
     private final static String MAP_TOP = "mapFinalTop.png";
     private final static String MAP_RGB = "mapRGB.png";
-    private final static String TASKEVENT_TEST = "TaskEvent.png";
 
     // Crewmates
     private int playerID;
@@ -64,22 +63,7 @@ public class ClientV4 extends Application {
 
     // Task Attributes
     private ArrayList<Task> taskList = new ArrayList<>();
-    // private Task mapTask;
-    // private Task rudderTask;
-    // private Task gunTask;
-    // private Task mastTask;
-    // private Task cannonTask;
-    // private Task bedTask;
-    // private Task captainQuartersTask;
-    // private Task upperStorageTask;
-    // private Task sleepingQuartersTask;
-    // private Task dineHallTask;
-    // private Task pumpTask;
-    // private Task lowerStorageTask;
-    private Task task = new Task("Generic");
-
-    private boolean taskArea;
-    private boolean taskControl;
+    private boolean tasksGotten;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -135,20 +119,6 @@ public class ClientV4 extends Application {
         movableBottom = new MovableBackground(MAP_BOTTOM);
         movableTop = new MovableBackground(MAP_TOP);
 
-        // Create Tasks
-        // mapTask = new Task("MAP");
-        // rudderTask = new Task("RUDDER");
-        // gunTask = new Task("GUN");
-        // mastTask = new Task("MAST");
-        // cannonTask = new Task("CANNON");
-        // bedTask = new Task("BED");
-        // captainQuartersTask = new Task("CAPTAINQUARTERS");
-        // upperStorageTask = new Task("UPPERSTORAGE");
-        // sleepingQuartersTask = new Task("SLEEPINGQUARTERS");
-        // dineHallTask = new Task("DINEHALL");
-        // pumpTask = new Task("PUMP");
-        // lowerStorageTask = new Task("LOWERSTORAGE");
-
         // Collision Detection
         rgbMap = new Image(MAP_RGB);
         pr = rgbMap.getPixelReader();
@@ -183,17 +153,6 @@ public class ClientV4 extends Application {
                     default:
                         break;
                 }
-
-                // Doing tasks
-                if (taskArea) {
-                    switch (event.getCode()) {
-                        case SPACE:
-                            taskControl = true;
-                            break;
-                        default:
-                            break;
-                    }
-                }
             }
         });
 
@@ -219,6 +178,18 @@ public class ClientV4 extends Application {
             }
         });
 
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                try {
+                    oos.writeObject("DISCONNECTING:" + playerID);
+                    System.exit(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         // Timer updates everything
         updateTimer = new AnimationTimer() {
             @Override
@@ -227,9 +198,6 @@ public class ClientV4 extends Application {
                 movableRGB.update();
                 movableBottom.update();
                 movableTop.update();
-                task.taskLocation();// i tried putting this both as a thread in the Task update() method and here,
-                                    // and it still wants to lag.
-                task.update();
 
             }
         };
@@ -253,7 +221,7 @@ public class ClientV4 extends Application {
                     oos.writeObject(player);
                 }
                 try {
-                    Thread.sleep(5);
+                    Thread.sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -303,9 +271,9 @@ public class ClientV4 extends Application {
                         // Thread that handles only moving the player sprites based on their position
                         new Thread(() -> {
                             int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
-                            int posY = player.getPlayerPosY() + movableRGB.getPosY() - 70;
+                            int posY = player.getPlayerPosY() + movableRGB.getPosY() - 65;
                             synchronized (playerList) {
-                                playerList.get(player.getPlayerID()).model.relocate(posX, posY);
+                                Platform.runLater(() -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
                             }
                         }).start();
 
@@ -346,14 +314,17 @@ public class ClientV4 extends Application {
                             Task newTask = new Task(task);
                             taskList.add(newTask);
                         }
+                        tasksGotten = true;
                     }
                 }
 
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
+            } catch (EOFException e)  {
+                
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            } 
         }
     }
 
@@ -518,7 +489,7 @@ public class ClientV4 extends Application {
              * canGoUp = true;
              */
 
-            // If movement allowed, then move playerhk
+            // If movement allowed, then move player
             if (canGoUp && up) {
                 posY += speed;
             }
@@ -533,6 +504,90 @@ public class ClientV4 extends Application {
             }
 
             mapLayer.relocate(posX, posY);
+
+
+            if(tasksGotten) {
+                for(Task task : taskList) {
+                    ImageView taskImage = task.getTaskImage();
+                    if(!root.getChildren().contains(taskImage)) {
+                        root.getChildren().add(taskImage);
+                        taskImage.setVisible(false);
+                    }
+    
+                    if(task.getTaskType().equals("TaskVote")) {
+                        if(playerPosX >= 1900 && playerPosX <= 2200 && playerPosY >= 450 && playerPosY <= 650) {
+                            taskImage.setVisible(true);
+                        }
+                        else {
+                            taskImage.setVisible(false);
+                        }
+                    }
+                    if(task.getTaskType().equals("TaskHelm")) {
+                        if(playerPosX >= 1380 && playerPosX <= 1580 && playerPosY >= 420 && playerPosY <= 640) {
+                            taskImage.setVisible(true);
+                        }
+                        else {
+                            taskImage.setVisible(false);
+                        }
+                    }
+                    if(task.getTaskType().equals("TaskMast")) {
+                        if(playerPosX >= 2320 && playerPosX <= 2545 && playerPosY >= 450 && playerPosY <= 650) {
+                            taskImage.setVisible(true);
+                        }
+                        else {
+                            taskImage.setVisible(false);
+                        }
+                    }
+                    if(task.getTaskType().equals("TaskNav")) {
+                        if(playerPosX >= 750 && playerPosX <= 1130 && playerPosY >= 680 && playerPosY <= 975) {
+                            taskImage.setVisible(true);
+                        }
+                        else {
+                            taskImage.setVisible(false);
+                        }
+                    }
+                    if(task.getTaskType().equals("TaskSickBay")) {
+                        if(playerPosX >= 1325 && playerPosX <= 1725 && playerPosY >= 850 && playerPosY <= 1075) {
+                            taskImage.setVisible(true);
+                        }
+                        else {
+                            taskImage.setVisible(false);
+                        }
+                    }
+                    if(task.getTaskType().equals("TaskQuarters")) {
+                        if(playerPosX >= 1025 && playerPosX <= 1480 && playerPosY >= 1255 && playerPosY <= 1565) {
+                            taskImage.setVisible(true);
+                        }
+                        else {
+                            taskImage.setVisible(false);
+                        }
+                    }
+                    if(task.getTaskType().equals("TaskStorage")) {
+                        if(playerPosX >= 1540 && playerPosX <= 2110 && playerPosY >= 1625 && playerPosY <= 1890) {
+                            taskImage.setVisible(true);
+                        }
+                        else {
+                            taskImage.setVisible(false);
+                        }
+                    }
+                    if(task.getTaskType().equals("TaskPump")) {
+                        if(playerPosX >= 2595 && playerPosX <= 3095 && playerPosY >= 1370 && playerPosY <= 1600) {
+                            taskImage.setVisible(true);
+                        }
+                        else {
+                            taskImage.setVisible(false);
+                        }
+                    }
+                    if(task.getTaskType().equals("TaskCannons")) {
+                        if(playerPosX >= 3005 && playerPosX <= 3395 && playerPosY >= 610 && playerPosY <= 730) {
+                            taskImage.setVisible(true);
+                        }
+                        else {
+                            taskImage.setVisible(false);
+                        }
+                    }
+                }
+            }
         }
 
         public int getPosX() {
@@ -554,16 +609,19 @@ public class ClientV4 extends Application {
 
     class Task extends Pane {
         private String taskType;
-        private ImageView taskEvent;
-
-        public void setTaskEvent(String taskImage) {// used for changing the task
-            this.taskEvent = new ImageView(taskImage);
-        }
+        private ImageView taskImage;
 
         public Task(String taskType) {
             this.taskType = taskType;
-            taskEvent = new ImageView(TASKEVENT_TEST);
+            taskImage = new ImageView(taskType + ".png");
+        }
 
+        public String getTaskType() {
+            return taskType;
+        }
+
+        public ImageView getTaskImage() {
+            return taskImage;
         }
 
         /**
@@ -612,151 +670,8 @@ public class ClientV4 extends Application {
          * Cannons
          * - X (3005 - 3395), Y (610 - 730)
          */
-
-        boolean inTask = false;// new boolean to control whether the task shows up
-
-        public void taskLocation() {
-
-            if (this.taskEvent != null) {
-                root.getChildren().remove(taskEvent);
-            } // gets rid of the imageview if instantiated
-
-            if ((movableRGB.getPlayerPosX() > 1800 && movableRGB.getPlayerPosX() < 2200) &&
-                    (movableRGB.getPlayerPosY() > 350 && movableRGB.getPlayerPosY() < 750)) {// checks locations marked
-                                                                                             // above
-
-                inTask = true;// verifies player is in task area
-                setTaskEvent("TaskVote.png");// new image for task
-                if (taskControl) {// checks if player completed
-                    inTask = false;// takes away task if completed (see update())
-                }
-
-            } else if ((movableRGB.getPlayerPosX() > 1280 && movableRGB.getPlayerPosX() < 1680) &&
-                    (movableRGB.getPlayerPosY() > 320 && movableRGB.getPlayerPosY() < 740)) {
-                inTask = true;
-                setTaskEvent("TaskHelm.png");
-                if (taskControl) {
-                    inTask = false;
-                }
-
-            } else if ((movableRGB.getPlayerPosX() > 2320 && movableRGB.getPlayerPosX() < 2545) &&
-                    (movableRGB.getPlayerPosY() > 450 && movableRGB.getPlayerPosY() < 650)) {
-                inTask = true;
-
-                setTaskEvent("TaskMast.png");
-                if (taskControl) {
-                    inTask = false;
-                }
-
-            } else if ((movableRGB.getPlayerPosX() > 750 && movableRGB.getPlayerPosX() < 1130) &&
-                    (movableRGB.getPlayerPosY() > 680 && movableRGB.getPlayerPosY() < 975)) {
-                inTask = true;
-                setTaskEvent("TaskNav.png");
-                if (taskControl) {
-                    inTask = false;
-                }
-
-            } else if ((movableRGB.getPlayerPosX() > 1325 && movableRGB.getPlayerPosX() < 1725) &&
-                    (movableRGB.getPlayerPosY() > 850 && movableRGB.getPlayerPosY() < 1075)) {
-                inTask = true;
-                setTaskEvent("TaskSickBay.png");
-                if (taskControl) {
-                    inTask = false;
-                }
-
-            } else if ((movableRGB.getPlayerPosX() > 1025 && movableRGB.getPlayerPosX() < 1480) &&
-                    (movableRGB.getPlayerPosY() > 1255 && movableRGB.getPlayerPosY() < 1565)) {
-                inTask = true;
-                setTaskEvent("TaskQuarters.png");
-                if (taskControl) {
-                    inTask = false;
-                }
-
-            } else if ((movableRGB.getPlayerPosX() > 1685 && movableRGB.getPlayerPosX() < 1960) &&
-                    (movableRGB.getPlayerPosY() > 1275 && movableRGB.getPlayerPosY() < 1560)) {
-                inTask = true;
-                setTaskEvent("TaskMess.png");
-                if (taskControl) {
-                    inTask = false;
-                }
-
-            } else if ((movableRGB.getPlayerPosX() > 1540 && movableRGB.getPlayerPosX() < 2100) &&
-                    (movableRGB.getPlayerPosY() > 1625 && movableRGB.getPlayerPosY() < 1890)) {
-                inTask = true;
-                setTaskEvent("TaskStorage.png");
-                if (taskControl) {
-                    inTask = false;
-                }
-
-            } else if ((movableRGB.getPlayerPosX() > 2595 && movableRGB.getPlayerPosX() < 3095) &&
-                    (movableRGB.getPlayerPosY() > 1370 && movableRGB.getPlayerPosY() < 1600)) {
-                inTask = true;
-                setTaskEvent("TaskPump.png");
-                if (taskControl) {
-                    inTask = false;
-                }
-
-            } else if ((movableRGB.getPlayerPosX() > 3080 && movableRGB.getPlayerPosX() < 3580) &&
-                    (movableRGB.getPlayerPosY() > 875 && movableRGB.getPlayerPosY() < 1110)) {
-                inTask = true;
-                setTaskEvent("TaskAmmo.png");
-                if (taskControl) {
-                    inTask = false;
-                }
-
-            } else if ((movableRGB.getPlayerPosX() > 3005 && movableRGB.getPlayerPosX() < 3395) &&
-                    (movableRGB.getPlayerPosY() > 610 && movableRGB.getPlayerPosY() < 730)) {
-                inTask = true;
-                setTaskEvent("TaskCannons.png");
-                if (taskControl) {
-                    inTask = false;
-                }
-
-            } else {
-                if (root.getChildren().contains(this.taskEvent)) {// again double checking to remove if invalid area
-                    root.getChildren().remove(this.taskEvent);
-
-                }
-                inTask = false;// taking away task
-                taskControl = false;// resetting controllablity
-
-            }
-
-        }
-
-        public void update() {
-
-            // Color taskCheck = pr.getColor(movableRGB.getPlayerPosX(),
-            // movableRGB.getPlayerPosY()); no longer relevant
-            // System.out.println(movableRGB.getPlayerPosX() + " " +
-            // movableRGB.getPlayerPosY());
-
-            if (inTask) {// see boolean above
-                if (!taskControl) {// checkng if the player completed task
-
-                    if (!root.getChildren().contains(this.taskEvent)) {// seeing if the task exists in the first place
-
-                        taskArea = true;
-                        root.getChildren().add(this.taskEvent);// adding the task ImageView
-
-                        // allowing task player control
-
-                    }
-                } else {
-                    // testing if player completes task
-
-                    taskControl = false;
-
-                }
-            } else {
-                if (root.getChildren().contains(this.taskEvent)) {
-                    root.getChildren().remove(this.taskEvent);
-
-                }
-
-            }
-
-        }
+        
+        
     }
 
     public static void main(String[] args) {
