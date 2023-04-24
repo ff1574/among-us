@@ -56,6 +56,7 @@ public class ClientV4 extends Application {
     private String chatName;
     private Label lblchatName;
     private TextArea taChatRoom;
+    private TextArea taChatMsg;
     private Button sendButton;
     private ComboBox voteMenu;
     ObservableList<String> voteOptions;
@@ -145,8 +146,9 @@ public class ClientV4 extends Application {
             System.out.println(playerColor);
 
             initializeScene();
-            /* initializeChat(); */
+            initializeChat();
             connectToServer();
+
         });
     }
 
@@ -169,6 +171,78 @@ public class ClientV4 extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }
+
+    public void initializeChat() {
+        this.stageChat = new Stage();
+        stageChat.setTitle("Chat");
+
+        rootChat = new VBox();
+
+        // Username label
+        lblchatName = new Label(masterUsername);
+        HBox hbox1 = new HBox(lblchatName);
+        // chat area
+        taChatRoom = new TextArea();
+        taChatRoom.setEditable(false);
+        HBox hbox2 = new HBox(taChatRoom);
+        // message area
+        Label lblMsg = new Label("Write message");
+        HBox hbox3 = new HBox(lblMsg);
+
+        taChatMsg = new TextArea();
+        HBox hbox4 = new HBox(taChatMsg);
+
+        voteOptions = FXCollections.observableArrayList("");
+
+        /**
+         * Below is not functional, need to find some way to get the player's usernames,
+         * maybe game shouldn't start until playerObjList is set (all players join game)
+         * 
+         * while (true) {
+         * 
+         * for (int playerID : playerObjList.keySet()) {
+         * voteOptions.add(playerObjList.get(playerID).getPlayerName());
+         * }
+         * }
+         */
+        voteMenu = new ComboBox<>(voteOptions);
+
+        HBox hbox5 = new HBox(voteMenu);
+
+        sendButton = new Button("SEND");
+        HBox hbox6 = new HBox(sendButton);
+
+        rootChat.getChildren().addAll(hbox1, hbox2, hbox3, hbox4, hbox5, hbox6);
+        sceneChat = new Scene(rootChat);
+        stageChat.setScene(sceneChat);
+        stageChat.show();
+
+        sendButton.setOnAction(event -> {
+            Chat chat = new Chat(masterUsername, taChatMsg.getText(), 1);
+
+            /***
+             * until the voteOptions lists can take all player names, voteValue is a
+             * generic "1"
+             * 
+             */
+            if (oos != null) {
+                try {
+                    synchronized(playerList){
+                        oos.writeObject(chat);
+                    }
+               
+
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            }
+            taChatMsg.clear();
+        });
+
     }
 
     // Function for initializing the whole game
@@ -373,6 +447,10 @@ public class ClientV4 extends Application {
                     new Thread(() -> {
                         talkToServer();
                     }).start();
+                }
+                if (data instanceof Chat) {/* NEED TO BUILD CHAT */
+                    taChatRoom.appendText(((Chat) data).toString());
+
                 }
 
                 // Receive different kinds of String dataa

@@ -172,6 +172,10 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
                             Player player = (Player) data;
                             broadcast(player);
                         }
+                        if (data instanceof Chat){
+                            Chat chat = (Chat) data;
+                            broadcast(chat);
+                        }
 
                         if (data instanceof String) {
                             String string = (String) data;
