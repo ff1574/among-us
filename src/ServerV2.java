@@ -144,8 +144,22 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent>{
 
                 // Tell client what ID they were assigned
                 oos.writeObject(playerID);
-                // Tell client which tasks they need to complete
-                oos.writeObject(giveRandomTasks());
+                // Tell client which role they have received
+                String role = assignRole();
+                oos.writeObject(role);
+
+                oos.flush();
+                oos.reset();
+                
+                // If client is crewmate
+                if(role.equals("ROLE:CREWMATE")) {
+                    // Tell client which tasks they need to complete
+                    oos.writeObject(giveRandomTasks());
+                }
+                // If client is impostor
+                if(role.equals("ROLE:IMPOSTOR")) {
+                    
+                }
 
                 // While client is connected
                 while(!socket.isClosed()) {
@@ -192,6 +206,19 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent>{
                     }
                 }
             }
+        }
+
+        // Amount of impostors
+        private int impostorCount = 0;
+        // Capacity of impostors
+        private int impostorAmount = 1;
+        // Method that will assign a role to the player, either crewmate or impostor
+        private String assignRole() {
+            if(impostorCount < impostorAmount) {
+                if((Math.random() * 10) > 5) {
+                    return "ROLE:IMPOSTOR";
+                } else return "ROLE:CREWMATE";
+            } else return "ROLE:CREWMATE";
         }
 
         // Constant for the amount of tasks the players receive

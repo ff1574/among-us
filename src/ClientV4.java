@@ -4,7 +4,6 @@ import java.util.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -59,6 +58,7 @@ public class ClientV4 extends Application {
 
     // Crewmates
     private int playerID;
+    private String masterUsername;
     private CrewmateRacer crewmateMaster = null;
     private HashMap<Integer, CrewmateRacer> playerList = new HashMap<>();
 
@@ -84,7 +84,7 @@ public class ClientV4 extends Application {
     @Override
     public void start(Stage stageStart) throws Exception {// initialize start first
         this.stageStart = stageStart;
-        stageStart.setTitle("START MENU");
+        stageStart.setTitle("Start Menu");
 
         rootStart = new VBox();
 
@@ -105,7 +105,7 @@ public class ClientV4 extends Application {
 
         // row 2, player info
         playerNameLabel = new Label("Enter a Username:");
-        playerNameTextField = new TextField();/// not sure how to send this username to the game
+        playerNameTextField = new TextField("testing");
         HBox row2 = new HBox(playerNameLabel, playerNameTextField);
 
         startButton = new Button("Start Game");
@@ -118,11 +118,11 @@ public class ClientV4 extends Application {
 
         startButton.setOnAction(event -> {
             stageStart.close();
-
-            connectToServer();
+            masterUsername = playerNameTextField.getText();
+            
             initializeScene();
+            connectToServer();
         });
-
     }
 
     // Function for connecting client to server
@@ -157,12 +157,15 @@ public class ClientV4 extends Application {
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
-                if (socket != null) {
-                    System.exit(0); /************ NOT IMPLEMENTED ***************** */
+                try {
+                    oos.writeObject("DISCONNECTING:" + playerID);
+                    System.exit(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                System.exit(0);
             }
         });
+
         root = new AnchorPane();
 
         // Create Player Character
@@ -228,18 +231,6 @@ public class ClientV4 extends Application {
                         break;
                     default:
                         break;
-                }
-            }
-        });
-
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                try {
-                    oos.writeObject("DISCONNECTING:" + playerID);
-                    System.exit(0);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
         });
@@ -327,8 +318,7 @@ public class ClientV4 extends Application {
                             int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
                             int posY = player.getPlayerPosY() + movableRGB.getPosY() - 65;
                             synchronized (playerList) {
-                                Platform.runLater(
-                                        () -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
+                                Platform.runLater(() -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
                             }
                         }).start();
 
@@ -371,6 +361,11 @@ public class ClientV4 extends Application {
                         }
                         tasksGotten = true;
                     }
+                    // If it is role data
+                    if (dataType[0].equals("ROLE")) {
+                        // Set the master crewmates role
+                        crewmateMaster.setRole(dataType[1]);
+                    }
                 }
 
             } catch (ClassNotFoundException e) {
@@ -392,6 +387,7 @@ public class ClientV4 extends Application {
         private boolean isMaster;
         private int modelFrame = 0;
         private int counter = 0;
+        private String role;
 
         public CrewmateRacer(boolean isMaster) {
             this.isMaster = isMaster;
@@ -455,6 +451,14 @@ public class ClientV4 extends Application {
                     this.getChildren().set(0, model);
                 }
             }
+        }
+
+        public void setRole(String role) {
+            this.role = role;
+        }
+
+        public String getRole() {
+            return this.role;
         }
     }
 
