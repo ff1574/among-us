@@ -59,8 +59,6 @@ public class ClientV4 extends Application {
     private Button sendButton;
     private ComboBox voteMenu;
     ObservableList<String> voteOptions;
-  
-    
 
     // GUI Attributes - game
     private Stage stage;
@@ -147,7 +145,7 @@ public class ClientV4 extends Application {
             System.out.println(playerColor);
 
             initializeScene();
-           /*initializeChat();*/
+            /* initializeChat(); */
             connectToServer();
         });
     }
@@ -197,7 +195,7 @@ public class ClientV4 extends Application {
         root = new AnchorPane();
 
         // Create Player Character
-        crewmateMaster = new CrewmateRacer(true,playerColor);
+        crewmateMaster = new CrewmateRacer(true, playerColor);
 
         // Create Map
         movableRGB = new MovableBackground(MAP_RGB);
@@ -354,16 +352,12 @@ public class ClientV4 extends Application {
                             int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
                             int posY = player.getPlayerPosY() + movableRGB.getPosY() - 65;
 
-                          
-
                             synchronized (playerList) {
                                 Platform.runLater(
                                         () -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
-                                        
+
                             }
-                           
-                          
-                   
+
                         }).start();
 
                         // System.out.println("X: " + player.getPlayerPosX() + " Y: " +
@@ -434,18 +428,15 @@ public class ClientV4 extends Application {
         private String role;
         private String playerColor;
 
-   
-
         public CrewmateRacer(boolean isMaster, String playerColor) {
             this.playerColor = playerColor;
             String mainSprite = "playervec_" + playerColor + ".png";
             String leftSprite = "playerLeftfootvec_" + playerColor + ".png";
             String rightSprite = "playerRightfootvec_" + playerColor + ".png";
-    
-            
+
             this.isMaster = isMaster;
             if (isMaster) {
-              
+
                 this.modelList = new ImageView[] {
                         new ImageView(mainSprite),
                         new ImageView(leftSprite),
@@ -522,7 +513,8 @@ public class ClientV4 extends Application {
                 }
             }
         }
-        public void racerMovement(){
+
+        public void racerMovement() {
             if (counter % 7 == 0) {
                 modelFrame = (modelFrame + 1) % modelList.length;
                 model = modelList[modelFrame];
