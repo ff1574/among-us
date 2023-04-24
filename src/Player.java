@@ -5,11 +5,17 @@ public class Player implements Serializable {
     private int playerPosX;
     private int playerPosY;
     private int playerID;
+    private String playerName;
+    private String playercolor;
 
-    public Player(int playerID, int playerPosX, int playerPosY) {
+    
+
+    public Player(int playerPosX, int playerPosY, int playerID, String playerName, String playercolor) {
         this.playerPosX = playerPosX;
         this.playerPosY = playerPosY;
         this.playerID = playerID;
+        this.playerName = playerName;
+        this.playercolor = playercolor;
     }
 
     public int getPlayerPosX() {
@@ -38,5 +44,21 @@ public class Player implements Serializable {
 
     public void setPlayerID(int playerID) {
         this.playerID = playerID;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
+
+    public String getPlayercolor() {
+        return playercolor;
+    }
+
+    public void setPlayercolor(String playercolor) {
+        this.playercolor = playercolor;
     }
 }

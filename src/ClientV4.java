@@ -4,9 +4,12 @@ import java.util.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -41,7 +44,9 @@ public class ClientV4 extends Application {
     private Label playerNameLabel;
     private TextField playerNameTextField;
     private Button startButton;
-    private boolean startGame = false;
+
+    private ComboBox colorMenu;
+    ObservableList<String> colorOptions = FXCollections.observableArrayList("yellow", "red", "blue", "grey");
 
     // GUI Attributes - game
     private Stage stage;
@@ -59,8 +64,10 @@ public class ClientV4 extends Application {
     // Crewmates
     private int playerID;
     private String masterUsername;
+    private String playerColor;
     private CrewmateRacer crewmateMaster = null;
     private HashMap<Integer, CrewmateRacer> playerList = new HashMap<>();
+    private HashMap<Integer, Player> playerObjList = new HashMap<>();
 
     // Movable Background
     private MovableBackground movableBottom = null;
@@ -89,9 +96,6 @@ public class ClientV4 extends Application {
         rootStart = new VBox();
 
         initializeStart();
-        if (startGame) {
-
-        }
 
     }
 
@@ -108,9 +112,15 @@ public class ClientV4 extends Application {
         playerNameTextField = new TextField("testing");
         HBox row2 = new HBox(playerNameLabel, playerNameTextField);
 
+        // color options
+
+        colorMenu = new ComboBox<>(colorOptions);
+        colorMenu.setEditable(false);
+        HBox row3 = new HBox(colorMenu);
+
         startButton = new Button("Start Game");
 
-        rootStart.getChildren().addAll(row1, row2, startButton);
+        rootStart.getChildren().addAll(row1, row2, row3, startButton);
 
         sceneStart = new Scene(rootStart, 400, 400);
         stageStart.setScene(sceneStart);
@@ -119,7 +129,9 @@ public class ClientV4 extends Application {
         startButton.setOnAction(event -> {
             stageStart.close();
             masterUsername = playerNameTextField.getText();
-            
+            playerColor = colorMenu.getValue().toString();
+            System.out.println(playerColor);
+
             initializeScene();
             connectToServer();
         });
@@ -149,7 +161,8 @@ public class ClientV4 extends Application {
     // Function for initializing the whole game
     public void initializeScene() {
 
-        this.stage = new Stage();// values for the stage/scene have to be located here since it's called by the start screen
+        this.stage = new Stage();// values for the stage/scene have to be located here since it's called by the
+                                 // start screen
 
         stage.setTitle("AmongUs - Best Team");
 
@@ -260,7 +273,8 @@ public class ClientV4 extends Application {
             // Always update player position, then send it to server
             int playerPosX = movableRGB.getPlayerPosX();
             int playerPosY = movableRGB.getPlayerPosY();
-            Player player = new Player(playerID, playerPosX, playerPosY);
+
+            Player player = new Player(playerPosX, playerPosY, playerID, masterUsername, playerColor);//updated class requires these values
             try {
                 if (oos != null) {
                     oos.writeObject(player);
@@ -292,6 +306,8 @@ public class ClientV4 extends Application {
                     if (player.getPlayerID() == playerID) {
                         // Then assign the player to the HashMap
                         playerList.put(playerID, crewmateMaster);
+
+                      
                     }
                     // If it's not the players ID
                     else {
@@ -301,6 +317,8 @@ public class ClientV4 extends Application {
                             // Create a new Crewmate, and assign player to HashMap
                             CrewmateRacer newPlayer = new CrewmateRacer(false);
                             playerList.put(player.getPlayerID(), newPlayer);
+                            playerObjList.put(player.getPlayerID(), player);// adding to an object list so color/name
+                                                                            // can be extracted
                             Platform.runLater(() -> movableBottom.getChildren().add(newPlayer));
                         }
                         // Handles null pointers, client tried to move other players with no information
@@ -317,9 +335,12 @@ public class ClientV4 extends Application {
                         new Thread(() -> {
                             int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
                             int posY = player.getPlayerPosY() + movableRGB.getPosY() - 65;
+                         
                             synchronized (playerList) {
-                                Platform.runLater(() -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
+                                Platform.runLater(
+                                        () -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
                             }
+
                         }).start();
 
                         // System.out.println("X: " + player.getPlayerPosX() + " Y: " +
@@ -388,32 +409,54 @@ public class ClientV4 extends Application {
         private int modelFrame = 0;
         private int counter = 0;
         private String role;
+        private String color;
+
+        String mainSprite = "playervec_" + playerColor + ".png";//takes the isMaster value
+        String leftSprite = "playerLeftfootvec_" + playerColor + ".png";
+        String rightSprite = "playerRightfootvec_" + playerColor + ".png";
+
+       
 
         public CrewmateRacer(boolean isMaster) {
             this.isMaster = isMaster;
+            if (isMaster) {
+                this.modelList = new ImageView[] {
+                        new ImageView(mainSprite),
+                        new ImageView(leftSprite),
+                        new ImageView(mainSprite),
+                        new ImageView(rightSprite)
+                };
+                this.model = modelList[modelFrame];
+            } else {
+                this.modelList = new ImageView[] {
+                    new ImageView(mainSprite),
+                    new ImageView(leftSprite),
+                    new ImageView(mainSprite),
+                    new ImageView(rightSprite)
+            };
+            this.model = modelList[modelFrame];
+          
+            
+              /**
+               * This does not seem to work, need to find a way to pass other users getPlayerColor to the client
+               * 
+               * for (int i : playerObjList.keySet()) {
+                    playerColor = playerObjList.get(i).getPlayercolor();
 
-            // If crewmate is player, give him desired model and place him on 400,250
-            // coordinates
-            if (this.isMaster) {
-                this.modelList = new ImageView[] {
-                        new ImageView(CREWMATE_MASTER),
-                        new ImageView(CREWMATE_MASTER_LEFT),
-                        new ImageView(CREWMATE_MASTER),
-                        new ImageView(CREWMATE_MASTER_RIGHT)
-                };
-                this.model = modelList[modelFrame];
+                    this.modelList = new ImageView[] {
+                            new ImageView(mainSprite),
+                            new ImageView(leftSprite),
+                            new ImageView(mainSprite),
+                            new ImageView(rightSprite)
+                    };
+                    this.model = modelList[modelFrame];
+
+                } */  
+
             }
-            // If crewmate is something else, do something else
-            else {
-                this.modelList = new ImageView[] {
-                        new ImageView(CREWMATE_MASTER),
-                        new ImageView(CREWMATE_MASTER_LEFT),
-                        new ImageView(CREWMATE_MASTER),
-                        new ImageView(CREWMATE_MASTER_RIGHT)
-                };
-                this.model = modelList[modelFrame];
-            }
+
             this.getChildren().add(model);
+
         }
 
         // Function for updating crewmates
