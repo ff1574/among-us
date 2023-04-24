@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -47,6 +48,19 @@ public class ClientV4 extends Application {
 
     private ComboBox colorMenu;
     ObservableList<String> colorOptions = FXCollections.observableArrayList("yellow", "red", "blue", "grey");
+
+    // GUI Attributes - chat
+    private Stage stageChat;
+    private Scene sceneChat;
+    private VBox rootChat;
+    private String chatName;
+    private Label lblchatName;
+    private TextArea taChatRoom;
+    private Button sendButton;
+    private ComboBox voteMenu;
+    ObservableList<String> voteOptions;
+  
+    
 
     // GUI Attributes - game
     private Stage stage;
@@ -133,6 +147,7 @@ public class ClientV4 extends Application {
             System.out.println(playerColor);
 
             initializeScene();
+           /*initializeChat();*/
             connectToServer();
         });
     }
@@ -182,7 +197,7 @@ public class ClientV4 extends Application {
         root = new AnchorPane();
 
         // Create Player Character
-        crewmateMaster = new CrewmateRacer(true);
+        crewmateMaster = new CrewmateRacer(true,playerColor);
 
         // Create Map
         movableRGB = new MovableBackground(MAP_RGB);
@@ -274,7 +289,9 @@ public class ClientV4 extends Application {
             int playerPosX = movableRGB.getPlayerPosX();
             int playerPosY = movableRGB.getPlayerPosY();
 
-            Player player = new Player(playerPosX, playerPosY, playerID, masterUsername, playerColor);//updated class requires these values
+            Player player = new Player(playerPosX, playerPosY, playerID, masterUsername, playerColor);// updated class
+                                                                                                      // requires these
+                                                                                                      // values
             try {
                 if (oos != null) {
                     oos.writeObject(player);
@@ -306,8 +323,9 @@ public class ClientV4 extends Application {
                     if (player.getPlayerID() == playerID) {
                         // Then assign the player to the HashMap
                         playerList.put(playerID, crewmateMaster);
+                        playerObjList.put(playerID, player);// adding to an object list so color/name
+                        // can be extracted
 
-                      
                     }
                     // If it's not the players ID
                     else {
@@ -315,7 +333,7 @@ public class ClientV4 extends Application {
                         // And the other player is not in the HashMap
                         if (!playerList.containsKey(player.getPlayerID())) {
                             // Create a new Crewmate, and assign player to HashMap
-                            CrewmateRacer newPlayer = new CrewmateRacer(false);
+                            CrewmateRacer newPlayer = new CrewmateRacer(false, player.getPlayercolor());
                             playerList.put(player.getPlayerID(), newPlayer);
                             playerObjList.put(player.getPlayerID(), player);// adding to an object list so color/name
                                                                             // can be extracted
@@ -335,12 +353,17 @@ public class ClientV4 extends Application {
                         new Thread(() -> {
                             int posX = player.getPlayerPosX() + movableRGB.getPosX() - 20;
                             int posY = player.getPlayerPosY() + movableRGB.getPosY() - 65;
-                         
+
+                          
+
                             synchronized (playerList) {
                                 Platform.runLater(
                                         () -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
+                                        
                             }
-
+                           
+                          
+                   
                         }).start();
 
                         // System.out.println("X: " + player.getPlayerPosX() + " Y: " +
@@ -409,17 +432,20 @@ public class ClientV4 extends Application {
         private int modelFrame = 0;
         private int counter = 0;
         private String role;
-        private String color;
+        private String playerColor;
 
-        String mainSprite = "playervec_" + playerColor + ".png";//takes the isMaster value
-        String leftSprite = "playerLeftfootvec_" + playerColor + ".png";
-        String rightSprite = "playerRightfootvec_" + playerColor + ".png";
+   
 
-       
-
-        public CrewmateRacer(boolean isMaster) {
+        public CrewmateRacer(boolean isMaster, String playerColor) {
+            this.playerColor = playerColor;
+            String mainSprite = "playervec_" + playerColor + ".png";
+            String leftSprite = "playerLeftfootvec_" + playerColor + ".png";
+            String rightSprite = "playerRightfootvec_" + playerColor + ".png";
+    
+            
             this.isMaster = isMaster;
             if (isMaster) {
+              
                 this.modelList = new ImageView[] {
                         new ImageView(mainSprite),
                         new ImageView(leftSprite),
@@ -429,29 +455,30 @@ public class ClientV4 extends Application {
                 this.model = modelList[modelFrame];
             } else {
                 this.modelList = new ImageView[] {
-                    new ImageView(mainSprite),
-                    new ImageView(leftSprite),
-                    new ImageView(mainSprite),
-                    new ImageView(rightSprite)
-            };
-            this.model = modelList[modelFrame];
-          
-            
-              /**
-               * This does not seem to work, need to find a way to pass other users getPlayerColor to the client
-               * 
-               * for (int i : playerObjList.keySet()) {
-                    playerColor = playerObjList.get(i).getPlayercolor();
+                        new ImageView(mainSprite),
+                        new ImageView(leftSprite),
+                        new ImageView(mainSprite),
+                        new ImageView(rightSprite)
+                };
+                this.model = modelList[modelFrame];
 
-                    this.modelList = new ImageView[] {
-                            new ImageView(mainSprite),
-                            new ImageView(leftSprite),
-                            new ImageView(mainSprite),
-                            new ImageView(rightSprite)
-                    };
-                    this.model = modelList[modelFrame];
-
-                } */  
+                /**
+                 * This does not seem to work, need to find a way to pass other users
+                 * getPlayerColor to the client
+                 * 
+                 * for (int i : playerObjList.keySet()) {
+                 * playerColor = playerObjList.get(i).getPlayercolor();
+                 * 
+                 * this.modelList = new ImageView[] {
+                 * new ImageView(mainSprite),
+                 * new ImageView(leftSprite),
+                 * new ImageView(mainSprite),
+                 * new ImageView(rightSprite)
+                 * };
+                 * this.model = modelList[modelFrame];
+                 * 
+                 * }
+                 */
 
             }
 
@@ -481,7 +508,7 @@ public class ClientV4 extends Application {
                 // counter++;
 
             }
-            if (counter > 200000000)
+            if (counter > 8)
                 counter = 0;
         }
 
@@ -494,6 +521,14 @@ public class ClientV4 extends Application {
                     this.getChildren().set(0, model);
                 }
             }
+        }
+        public void racerMovement(){
+            if (counter % 7 == 0) {
+                modelFrame = (modelFrame + 1) % modelList.length;
+                model = modelList[modelFrame];
+                this.getChildren().set(0, model);
+            }
+
         }
 
         public void setRole(String role) {
@@ -524,6 +559,7 @@ public class ClientV4 extends Application {
         public MovableBackground(String path) {
             mapLayer = new ImageView(path);
             this.getChildren().add(mapLayer);
+
         }
 
         // Function for moving map, updating everything needed

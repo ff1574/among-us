@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public class ServerV2 extends Application implements EventHandler<ActionEvent>{
+public class ServerV2 extends Application implements EventHandler<ActionEvent> {
 
     // Server Attributes
     private ServerV2 server;
@@ -31,7 +31,7 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent>{
     private Scene scene;
     private Button startStopBtn;
     private TextArea serverLog;
-    
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.stage = primaryStage;
@@ -75,7 +75,7 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent>{
                 serverLog.appendText("Server started. Waiting for players...\n");
             } else {
                 // Stop the server
-                
+
                 keepGoing = false;
                 try {
                     sSocket.close();
@@ -94,7 +94,7 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent>{
 
     // Class for accepting players
     class ServerThread extends Thread {
-        
+
         private Socket cSocket = null;
 
         public void run() {
@@ -103,7 +103,7 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent>{
                 sSocket = new ServerSocket(SERVER_PORT);
 
                 System.out.println("Server started. Waiting for players...");
-                while(keepGoing) {
+                while (keepGoing) {
 
                     // Accept players
                     cSocket = sSocket.accept();
@@ -150,34 +150,34 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent>{
 
                 oos.flush();
                 oos.reset();
-                
+
                 // If client is crewmate
-                if(role.equals("ROLE:CREWMATE")) {
+                if (role.equals("ROLE:CREWMATE")) {
                     // Tell client which tasks they need to complete
                     oos.writeObject(giveRandomTasks());
                 }
                 // If client is impostor
-                if(role.equals("ROLE:IMPOSTOR")) {
-                    
+                if (role.equals("ROLE:IMPOSTOR")) {
+
                 }
 
                 // While client is connected
-                while(!socket.isClosed()) {
+                while (!socket.isClosed()) {
                     try {
                         // Read data
                         Object data = ois.readObject();
 
                         // If its clients player data, take it and broadcast it to other players
-                        if(data instanceof Player) {
+                        if (data instanceof Player) {
                             Player player = (Player) data;
                             broadcast(player);
                         }
 
-                        if(data instanceof String) {
+                        if (data instanceof String) {
                             String string = (String) data;
 
                             String[] dataType = string.split(":");
-                            if(dataType[0].equals("DISCONNECTING")) {
+                            if (dataType[0].equals("DISCONNECTING")) {
                                 playerList.remove(oos);
                                 oos.close();
                                 ois.close();
@@ -193,12 +193,12 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent>{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } 
+        }
 
         // Function that broadcasts to all players on the list
         private void broadcast(Object object) {
-            synchronized(lock) {
-                for(int i = 0; i < playerList.size(); i++) {
+            synchronized (lock) {
+                for (int i = 0; i < playerList.size(); i++) {
                     try {
                         playerList.get(i).writeObject(object);
                     } catch (IOException e) {
@@ -212,35 +212,41 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent>{
         private int impostorCount = 0;
         // Capacity of impostors
         private int impostorAmount = 1;
+
         // Method that will assign a role to the player, either crewmate or impostor
         private String assignRole() {
-            if(impostorCount < impostorAmount) {
-                if((Math.random() * 10) > 5) {
+            if (impostorCount < impostorAmount) {
+                if ((Math.random() * 10) > 5) {
                     return "ROLE:IMPOSTOR";
-                } else return "ROLE:CREWMATE";
-            } else return "ROLE:CREWMATE";
+                } else
+                    return "ROLE:CREWMATE";
+            } else
+                return "ROLE:CREWMATE";
         }
 
         // Constant for the amount of tasks the players receive
         private static final int TASK_AMOUNT = 4;
+
         // Method that randomly gives tasks to the players
         private String giveRandomTasks() {
             // Attributes
             String returnTasks = "TASKS:";
-            String[] taskList = {"TaskNav", "TaskHelm", "TaskVote", "TaskCannons", "TaskSickBay", "TaskPump", "TaskStorage"};
+            String[] taskList = { "TaskNav", "TaskHelm", "TaskVote", "TaskCannons", "TaskSickBay", "TaskPump",
+                    "TaskStorage" };
             // Removed tasks: , "TaskAmmo", "TaskQuarters", "TaskMess", "TaskMast"
             ArrayList<String> selectedTasks = new ArrayList<>();
             Random random = new Random();
 
             // While there is less than 4 tasks given
-            while(selectedTasks.size() < TASK_AMOUNT) {
+            while (selectedTasks.size() < TASK_AMOUNT) {
                 // Select a new random task from the array
                 String task = taskList[random.nextInt(taskList.length)];
 
                 // Ensure it is unique/not duplicate
-                if(!selectedTasks.contains(task)) {
-                    // Set the task to the list, if it is the last task in the list don't set a ',' at the end
-                    if(selectedTasks.size() == TASK_AMOUNT-1) {
+                if (!selectedTasks.contains(task)) {
+                    // Set the task to the list, if it is the last task in the list don't set a ','
+                    // at the end
+                    if (selectedTasks.size() == TASK_AMOUNT - 1) {
                         selectedTasks.add(task);
                         returnTasks += task;
                     } else {
