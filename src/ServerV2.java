@@ -173,15 +173,12 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
                             synchronized (playerList) {
                                 broadcast(player);
                             }
-
                         }
                         if (data instanceof Chat) {
                             Chat chat = (Chat) data;
-
                             synchronized (playerList) {
                                 broadcast(chat);
                             }
-
                         }
 
                         if (data instanceof Vote) {
@@ -189,7 +186,6 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
                             synchronized (playerList) {
                                 broadcast(vote);
                             }
-
                         }
 
                         if (data instanceof String) {

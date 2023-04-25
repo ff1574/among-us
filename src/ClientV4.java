@@ -53,7 +53,6 @@ public class ClientV4 extends Application {
     private Stage stageChat;
     private Scene sceneChat;
     private VBox rootChat;
-    private String chatName;
     private Label lblchatName;
     private TextArea taChatRoom;
     private TextArea taChatMsg;
@@ -70,9 +69,6 @@ public class ClientV4 extends Application {
     private AnchorPane root;
 
     // Graphics
-    private final static String CREWMATE_MASTER = "playervec.png";
-    private final static String CREWMATE_MASTER_LEFT = "playerLeftfootvec.png";
-    private final static String CREWMATE_MASTER_RIGHT = "playerRightfootvec.png";
     private final static String MAP_BOTTOM = "mapFinalBottom.png";
     private final static String MAP_TOP = "mapFinalTop.png";
     private final static String MAP_RGB = "mapRGB.png";
@@ -112,7 +108,6 @@ public class ClientV4 extends Application {
         rootStart = new VBox();
 
         initializeStart();
-
     }
 
     // setting up start menu/handling
@@ -146,12 +141,11 @@ public class ClientV4 extends Application {
             stageStart.close();
             masterUsername = playerNameTextField.getText();
             playerColor = colorMenu.getValue().toString();
-            System.out.println(playerColor);
+            System.out.println("My color is: " + playerColor);
 
             initializeScene();
             initializeChat();
             connectToServer();
-
         });
     }
 
@@ -197,19 +191,8 @@ public class ClientV4 extends Application {
         taChatMsg = new TextArea();
         HBox hbox4 = new HBox(taChatMsg);
 
-        voteOptions = FXCollections.observableArrayList("");
-
-        /**
-         * Below is not functional, need to find some way to get the player's usernames,
-         * maybe game shouldn't start until playerObjList is set (all players join game)
-         * 
-         * while (true) {
-         * 
-         * for (int playerID : playerObjList.keySet()) {
-         * voteOptions.add(playerObjList.get(playerID).getPlayerName());
-         * }
-         * }
-         */
+        voteOptions = FXCollections.observableArrayList();
+        
         voteMenu = new ComboBox<>(voteOptions);
 
         HBox hbox5 = new HBox(voteMenu);
@@ -225,7 +208,6 @@ public class ClientV4 extends Application {
 
         sendButton.setOnAction(event -> {
             Chat chat = new Chat(masterUsername, taChatMsg.getText());
-
          
             if (oos != null) {
                 try {
@@ -234,7 +216,6 @@ public class ClientV4 extends Application {
                     }
 
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
 
@@ -257,7 +238,6 @@ public class ClientV4 extends Application {
                     }
 
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
 
@@ -566,29 +546,9 @@ public class ClientV4 extends Application {
                         new ImageView(rightSprite)
                 };
                 this.model = modelList[modelFrame];
-
-                /**
-                 * This does not seem to work, need to find a way to pass other users
-                 * getPlayerColor to the client
-                 * 
-                 * for (int i : playerObjList.keySet()) {
-                 * playerColor = playerObjList.get(i).getPlayercolor();
-                 * 
-                 * this.modelList = new ImageView[] {
-                 * new ImageView(mainSprite),
-                 * new ImageView(leftSprite),
-                 * new ImageView(mainSprite),
-                 * new ImageView(rightSprite)
-                 * };
-                 * this.model = modelList[modelFrame];
-                 * 
-                 * }
-                 */
-
             }
 
             this.getChildren().add(model);
-
         }
 
         // Function for updating crewmates
