@@ -62,7 +62,7 @@ public class ClientV4 extends Application {
     private ComboBox voteMenu;
     ObservableList<String> voteOptions;
 
-    ArrayList<Vote> voteTally = new ArrayList<Vote>();
+    ArrayList<Vote> voteTally = new ArrayList<Vote>();//
 
     // GUI Attributes - game
     private Stage stage;
@@ -83,7 +83,6 @@ public class ClientV4 extends Application {
     private String playerColor;
     private CrewmateRacer crewmateMaster = null;
     private HashMap<Integer, CrewmateRacer> playerList = new HashMap<>();
-    private HashMap<Integer, Player> playerObjList = new HashMap<>();
 
     // Movable Background
     private MovableBackground movableBottom = null;
@@ -111,10 +110,11 @@ public class ClientV4 extends Application {
 
         rootStart = new VBox();
 
-        initializeStart();
+        initializeStart();//first initialize the start menu
 
     }
 
+    // beginning of Start Menu
     // setting up start menu/handling
     public void initializeStart() {
 
@@ -142,18 +142,28 @@ public class ClientV4 extends Application {
         stageStart.setScene(sceneStart);
         stageStart.show();
 
-        startButton.setOnAction(event -> {
-            stageStart.close();
-            masterUsername = playerNameTextField.getText();
-            playerColor = colorMenu.getValue().toString();
-            System.out.println(playerColor);
+        startButton.setOnAction(event -> {// what happens when you hit start
 
-            initializeScene();
+            masterUsername = playerNameTextField.getText();// assign username to variable
+            playerColor = colorMenu.getValue().toString();// assign color chosen to variable
+            stageStart.close();// close out the start screen
+            System.out.println(playerColor);// testing the color variable
+
+            initializeScene();// starts the actual game
+
             initializeChat();
-            connectToServer();
+            /*
+             * this starts the chat, however this really only needs to be called when its
+             * time to
+             * vote. Perhaps if its not constantly running there will be more resources for
+             * the game.
+             */
+
+            connectToServer();// connects to the server
 
         });
     }
+    // end of Start Menu
 
     // Function for connecting client to server
     public void connectToServer() {
@@ -177,7 +187,9 @@ public class ClientV4 extends Application {
 
     }
 
-    public void initializeChat() {
+    /** Beginning of the chat window */
+
+    public void initializeChat() {// how we display/run the chat
         this.stageChat = new Stage();
         stageChat.setTitle("Chat");
 
@@ -188,29 +200,23 @@ public class ClientV4 extends Application {
         HBox hbox1 = new HBox(lblchatName);
         // chat area
         taChatRoom = new TextArea();
-        taChatRoom.setEditable(false);
+        taChatRoom.setEditable(false);// where messages are sent
+
         HBox hbox2 = new HBox(taChatRoom);
         // message area
         Label lblMsg = new Label("Write message");
         HBox hbox3 = new HBox(lblMsg);
 
-        taChatMsg = new TextArea();
+        taChatMsg = new TextArea();// where messages are written
         HBox hbox4 = new HBox(taChatMsg);
 
-        voteOptions = FXCollections.observableArrayList("");
-
+        voteOptions = FXCollections.observableArrayList();
         /**
-         * Below is not functional, need to find some way to get the player's usernames,
-         * maybe game shouldn't start until playerObjList is set (all players join game)
-         * 
-         * while (true) {
-         * 
-         * for (int playerID : playerObjList.keySet()) {
-         * voteOptions.add(playerObjList.get(playerID).getPlayerName());
-         * }
-         * }
+         * ^^the values in the voting menu, initialized as empty. Values are added via
+         * listenToServer() getting the playerName for any broadcasted Player
          */
-        voteMenu = new ComboBox<>(voteOptions);
+
+        voteMenu = new ComboBox<>(voteOptions);// combobox holding the votable names
 
         HBox hbox5 = new HBox(voteMenu);
         voteButton = new Button("VOTE");
@@ -221,16 +227,15 @@ public class ClientV4 extends Application {
         rootChat.getChildren().addAll(hbox1, hbox2, hbox3, hbox4, hbox5, hbox6);
         sceneChat = new Scene(rootChat);
         stageChat.setScene(sceneChat);
-        stageChat.show();
+        stageChat.show();// initializing scene as usual
 
-        sendButton.setOnAction(event -> {
-            Chat chat = new Chat(masterUsername, taChatMsg.getText());
+        sendButton.setOnAction(event -> {// how we handle sending a chat message
+            Chat chat = new Chat(masterUsername, taChatMsg.getText());// see Chat.java
 
-         
-            if (oos != null) {
+            if (oos != null) {// check if server is working
                 try {
-                    synchronized (playerList) {
-                        oos.writeObject(chat);
+                    synchronized (playerList) {// synching to a shared object
+                        oos.writeObject(chat);// send the message
                     }
 
                 } catch (IOException e) {
@@ -239,21 +244,16 @@ public class ClientV4 extends Application {
                 }
 
             }
-            taChatMsg.clear();
+            taChatMsg.clear();// delete the message area
         });
 
-        voteButton.setOnAction(event -> {
-            Vote vote = new Vote(voteMenu.getValue().toString());
+        voteButton.setOnAction(event -> {// how we handle sending a vote
+            Vote vote = new Vote(voteMenu.getValue().toString());// see Vote.java
 
-            /***
-             * until the voteOptions lists can take all player names, voteValue is a
-             * generic "1"
-             * 
-             */
-            if (oos != null) {
+            if (oos != null) {// check if server works
                 try {
-                    synchronized (playerList) {
-                        oos.writeObject(vote);
+                    synchronized (playerList) {// synching to a shared object
+                        oos.writeObject(vote);// send the vote
                     }
 
                 } catch (IOException e) {
@@ -262,10 +262,12 @@ public class ClientV4 extends Application {
                 }
 
             }
-            taChatMsg.clear();
+
         });
 
     }
+
+    /** End of the chat window */
 
     // Function for initializing the whole game
     public void initializeScene() {
@@ -292,7 +294,10 @@ public class ClientV4 extends Application {
 
         // Create Player Character
         crewmateMaster = new CrewmateRacer(true, playerColor);
-
+        /**
+         * CrewmateRacer now accepts the color variable as set by
+         * the start screen>colorMenu, see CrewmateRacer class
+         */
         // Create Map
         movableRGB = new MovableBackground(MAP_RGB);
         movableBottom = new MovableBackground(MAP_BOTTOM);
@@ -383,12 +388,13 @@ public class ClientV4 extends Application {
             int playerPosX = movableRGB.getPlayerPosX();
             int playerPosY = movableRGB.getPlayerPosY();
 
-            Player player = new Player(playerPosX, playerPosY, playerID, masterUsername, playerColor);// updated class
-                                                                                                      // requires these
-                                                                                                      // values
+            Player player = new Player(playerPosX, playerPosY, playerID, masterUsername, playerColor);
+            /**
+             * Player.java constructor updated to hold player's Username and playerColor
+             */
             try {
                 if (oos != null) {
-                    oos.writeObject(player);
+                    oos.writeObject(player);// sending player data
                 }
                 try {
                     Thread.sleep(1);
@@ -413,21 +419,22 @@ public class ClientV4 extends Application {
                 if (data instanceof Player) {
                     Player player = (Player) data;
 
-                    
-                    
-                   if(!voteOptions.contains(player.getPlayerName())){
-                    voteOptions.add(player.getPlayerName());
-                    voteOptions.sort(null);
+                    /**
+                     * Before checking playerID for master/non-master, we add the broadcasted
+                     * player's playerName to
+                     * voteOptions in ChatRoom's voteMenu
+                     */
+                    if (!voteOptions.contains(player.getPlayerName())) {
+                        voteOptions.add(player.getPlayerName());
+                        voteOptions.sort(null);// ideally this sorted the names alphabetically but might not work/be
+                                               // neccessary
 
-                   }
-                     
-                   
+                    }
+
                     // And it's the players own ID
                     if (player.getPlayerID() == playerID) {
                         // Then assign the player to the HashMap
                         playerList.put(playerID, crewmateMaster);
-                        playerObjList.put(playerID, player);// adding to an object list so color/name
-                        // can be extracted
 
                     }
                     // If it's not the players ID
@@ -438,8 +445,9 @@ public class ClientV4 extends Application {
                             // Create a new Crewmate, and assign player to HashMap
                             CrewmateRacer newPlayer = new CrewmateRacer(false, player.getPlayercolor());
                             playerList.put(player.getPlayerID(), newPlayer);
-                            playerObjList.put(player.getPlayerID(), player);// adding to an object list so color/name
-                                                                            // can be extracted
+                            // layerObjList.put(player.getPlayerID(), player);// adding to an object list so
+                            // color/name
+                            // can be extracted
                             Platform.runLater(() -> movableBottom.getChildren().add(newPlayer));
                         }
                         // Handles null pointers, client tried to move other players with no information
@@ -480,11 +488,11 @@ public class ClientV4 extends Application {
                     }).start();
                 }
 
-                if (data instanceof Chat) {//add chat messages
+                if (data instanceof Chat) {// add chat messages, the same way we recieve other objects
                     taChatRoom.appendText(((Chat) data).toString());
 
                 }
-                if (data instanceof Vote) {//add votes
+                if (data instanceof Vote) {// add votes, the same way we recieve other objects
                     voteTally.add((Vote) data);
                     System.out.println(((Vote) data).voteValue);
                 }
@@ -542,6 +550,11 @@ public class ClientV4 extends Application {
         private String role;
         private String playerColor;
 
+        /**
+         * constructor now also recieves the player color, because these are passed for
+         * all broadcasted Player objects, it works for both master/non-master
+         *
+         */
         public CrewmateRacer(boolean isMaster, String playerColor) {
             this.playerColor = playerColor;
             String mainSprite = "playervec_" + playerColor + ".png";
@@ -566,24 +579,6 @@ public class ClientV4 extends Application {
                         new ImageView(rightSprite)
                 };
                 this.model = modelList[modelFrame];
-
-                /**
-                 * This does not seem to work, need to find a way to pass other users
-                 * getPlayerColor to the client
-                 * 
-                 * for (int i : playerObjList.keySet()) {
-                 * playerColor = playerObjList.get(i).getPlayercolor();
-                 * 
-                 * this.modelList = new ImageView[] {
-                 * new ImageView(mainSprite),
-                 * new ImageView(leftSprite),
-                 * new ImageView(mainSprite),
-                 * new ImageView(rightSprite)
-                 * };
-                 * this.model = modelList[modelFrame];
-                 * 
-                 * }
-                 */
 
             }
 

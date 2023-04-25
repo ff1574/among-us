@@ -175,6 +175,8 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
                             }
 
                         }
+                        //broadcasting functions similarly for all objects ideally
+                        // get clients Chat/Vote data and broadcast it to other players
                         if (data instanceof Chat) {
                             Chat chat = (Chat) data;
 
