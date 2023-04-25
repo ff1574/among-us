@@ -170,11 +170,26 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
                         // If its clients player data, take it and broadcast it to other players
                         if (data instanceof Player) {
                             Player player = (Player) data;
-                            broadcast(player);
+                            synchronized (playerList) {
+                                broadcast(player);
+                            }
+
                         }
-                        if (data instanceof Chat){
+                        if (data instanceof Chat) {
                             Chat chat = (Chat) data;
-                            broadcast(chat);
+
+                            synchronized (playerList) {
+                                broadcast(chat);
+                            }
+
+                        }
+
+                        if (data instanceof Vote) {
+                            Vote vote = (Vote) data;
+                            synchronized (playerList) {
+                                broadcast(vote);
+                            }
+
                         }
 
                         if (data instanceof String) {

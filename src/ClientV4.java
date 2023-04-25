@@ -58,8 +58,11 @@ public class ClientV4 extends Application {
     private TextArea taChatRoom;
     private TextArea taChatMsg;
     private Button sendButton;
+    private Button voteButton;
     private ComboBox voteMenu;
     ObservableList<String> voteOptions;
+
+    ArrayList<Vote> voteTally = new ArrayList<Vote>();
 
     // GUI Attributes - game
     private Stage stage;
@@ -210,9 +213,10 @@ public class ClientV4 extends Application {
         voteMenu = new ComboBox<>(voteOptions);
 
         HBox hbox5 = new HBox(voteMenu);
+        voteButton = new Button("VOTE");
 
         sendButton = new Button("SEND");
-        HBox hbox6 = new HBox(sendButton);
+        HBox hbox6 = new HBox(sendButton, voteButton);
 
         rootChat.getChildren().addAll(hbox1, hbox2, hbox3, hbox4, hbox5, hbox6);
         sceneChat = new Scene(rootChat);
@@ -220,7 +224,26 @@ public class ClientV4 extends Application {
         stageChat.show();
 
         sendButton.setOnAction(event -> {
-            Chat chat = new Chat(masterUsername, taChatMsg.getText(), 1);
+            Chat chat = new Chat(masterUsername, taChatMsg.getText());
+
+         
+            if (oos != null) {
+                try {
+                    synchronized (playerList) {
+                        oos.writeObject(chat);
+                    }
+
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            }
+            taChatMsg.clear();
+        });
+
+        voteButton.setOnAction(event -> {
+            Vote vote = new Vote(voteMenu.getValue().toString());
 
             /***
              * until the voteOptions lists can take all player names, voteValue is a
@@ -229,10 +252,9 @@ public class ClientV4 extends Application {
              */
             if (oos != null) {
                 try {
-                    synchronized(playerList){
-                        oos.writeObject(chat);
+                    synchronized (playerList) {
+                        oos.writeObject(vote);
                     }
-               
 
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
@@ -391,6 +413,15 @@ public class ClientV4 extends Application {
                 if (data instanceof Player) {
                     Player player = (Player) data;
 
+                    
+                    
+                   if(!voteOptions.contains(player.getPlayerName())){
+                    voteOptions.add(player.getPlayerName());
+                    voteOptions.sort(null);
+
+                   }
+                     
+                   
                     // And it's the players own ID
                     if (player.getPlayerID() == playerID) {
                         // Then assign the player to the HashMap
@@ -448,9 +479,14 @@ public class ClientV4 extends Application {
                         talkToServer();
                     }).start();
                 }
-                if (data instanceof Chat) {/* NEED TO BUILD CHAT */
+
+                if (data instanceof Chat) {//add chat messages
                     taChatRoom.appendText(((Chat) data).toString());
 
+                }
+                if (data instanceof Vote) {//add votes
+                    voteTally.add((Vote) data);
+                    System.out.println(((Vote) data).voteValue);
                 }
 
                 // Receive different kinds of String dataa
