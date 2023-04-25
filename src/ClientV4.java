@@ -426,9 +426,7 @@ public class ClientV4 extends Application {
                      */
                     if (!voteOptions.contains(player.getPlayerName())) {
                         voteOptions.add(player.getPlayerName());
-                        voteOptions.sort(null);// ideally this sorted the names alphabetically but might not work/be
-                                               // neccessary
-
+                      
                     }
 
                     // And it's the players own ID
