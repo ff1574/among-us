@@ -216,20 +216,27 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
                                 Platform.runLater(() -> playerListView.getItems().remove(listInput));
                             }
 
-                            if(string.equals("TASKDONE")) {
+                            if (string.equals("TASKDONE")) {
                                 completedTasks++;
                             }
-                            if(string.equals("SLOWDOWN")) {
+                            if (string.equals("SLOWDOWN")) {
                                 broadcast(string);
                             }
-                            if(string.equals("STOPTASKS")) {
+                            if (string.equals("STOPTASKS")) {
                                 broadcast(string);
+                            }
+                            if (string.equals("CLOSE")) {// closing on winscene control
+                                serverLog.appendText("Player " + playerID + " wins. Game over.\n");
+                                oos.close();
+                                ois.close();
+                                socket.close();
+                                System.exit(0);
                             }
                         }
 
-                        if(completedTasks >= playerList.size() * 2) {
+                       // if (completedTasks >= playerList.size() * 2) { // comment out if statement to test the winstate
                             oos.writeObject("WIN:CREWMATES");
-                        }
+                      //  }
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
                     }

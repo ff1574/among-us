@@ -95,6 +95,7 @@ public class ClientV4 extends Application {
     private boolean up = false, down = false, right = false, left = false;
     private boolean slowdownUsed = false;
     private boolean stoptasksUsed = false;
+    private boolean isInitialized = false;
 
     // Collision Detection
     private PixelReader pr = null;
@@ -105,6 +106,11 @@ public class ClientV4 extends Application {
     private boolean tasksGotten;
     private boolean taskActivated = false;
     private boolean tasksStopped = false;
+
+    // win screen
+    private Stage winStage;
+    private Scene winScene;
+    private AnchorPane winRoot;
 
     @Override
     public void start(Stage stageStart) throws Exception {// initialize start first
@@ -146,13 +152,46 @@ public class ClientV4 extends Application {
         startButton.setOnAction(event -> {
             stageStart.close();
             masterUsername = playerNameTextField.getText();
-            if(colorMenu.getValue().toString() == null) playerColor = "grey";
-            else playerColor = colorMenu.getValue().toString();
+            if (colorMenu.getValue().toString() == null)
+                playerColor = "grey";
+            else
+                playerColor = colorMenu.getValue().toString();
             System.out.println("My color is: " + playerColor);
 
             initializeScene();
             initializeChat();
             connectToServer();
+        });
+    }
+
+    public void initializeWin() {// a win scene, called on receiving the win message from server
+        this.winStage = new Stage();
+        winStage.setTitle("YOU WIN!");
+
+        ImageView winScreen = new ImageView("WinImage.png");
+        winRoot = new AnchorPane(winScreen);
+        winScene = new Scene(winRoot, 1200, 800);
+        winStage.setScene(winScene);
+        winStage.show();
+
+        winScene.setOnKeyPressed(new EventHandler<KeyEvent>() {//winscene control to close out all applications
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.SPACE) {
+                    if (oos != null) {
+                        try {
+                            oos.writeObject("CLOSE");
+                            oos.close();
+                            ois.close();
+                            socket.close();
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                 System.exit(0);
+                }
+            }
         });
     }
 
@@ -199,7 +238,7 @@ public class ClientV4 extends Application {
         HBox hbox4 = new HBox(taChatMsg);
 
         voteOptions = FXCollections.observableArrayList();
-        
+
         voteMenu = new ComboBox<>(voteOptions);
 
         HBox hbox5 = new HBox(voteMenu);
@@ -215,7 +254,7 @@ public class ClientV4 extends Application {
 
         sendButton.setOnAction(event -> {
             Chat chat = new Chat(masterUsername, taChatMsg.getText());
-         
+
             if (oos != null) {
                 try {
                     synchronized (playerList) {
@@ -233,11 +272,6 @@ public class ClientV4 extends Application {
         voteButton.setOnAction(event -> {
             Vote vote = new Vote(voteMenu.getValue().toString());
 
-            /***
-             * until the voteOptions lists can take all player names, voteValue is a
-             * generic "1"
-             * 
-             */
             if (oos != null) {
                 try {
                     synchronized (playerList) {
@@ -320,19 +354,21 @@ public class ClientV4 extends Application {
                         break;
                 }
 
-                if(event.getCode() == KeyCode.E && tasksStopped == false) {
-                    for(Task task : taskList) {
+                if (event.getCode() == KeyCode.E && tasksStopped == false) {
+                    for (Task task : taskList) {
                         ImageView taskImage = task.getTaskImage();
-                        if(taskImage.isVisible()) {
+                        if (taskImage.isVisible()) {
                             taskActivated = true;
                             taskImage.setImage(new Image(task.getTaskType() + "Event.png"));
                         }
                     }
                 }
-                if(event.getCode() == KeyCode.SPACE && taskActivated && tasksStopped == false) {
-                    for(Task task : taskList) {
+                if (event.getCode() == KeyCode.SPACE && taskActivated && tasksStopped == false) {
+
+                    for (Task task : taskList) {
+
                         ImageView taskImage = task.getTaskImage();
-                        if(taskImage.isVisible()) {
+                        if (taskImage.isVisible()) {
                             taskImage.setImage(new Image("doneTask.png"));
                             taskActivated = false;
                             try {
@@ -343,7 +379,8 @@ public class ClientV4 extends Application {
                         }
                     }
                 }
-                if(event.getCode() == KeyCode.F && crewmateMaster.getRole().equals("IMPOSTOR") && slowdownUsed == false) {
+                if (event.getCode() == KeyCode.F && crewmateMaster.getRole().equals("IMPOSTOR")
+                        && slowdownUsed == false) {
                     try {
                         oos.writeObject("SLOWDOWN");
                         slowdownUsed = true;
@@ -351,7 +388,8 @@ public class ClientV4 extends Application {
                         e.printStackTrace();
                     }
                 }
-                if(event.getCode() == KeyCode.G && crewmateMaster.getRole().equals("IMPOSTOR") && stoptasksUsed == false) {
+                if (event.getCode() == KeyCode.G && crewmateMaster.getRole().equals("IMPOSTOR")
+                        && stoptasksUsed == false) {
                     try {
                         oos.writeObject("STOPTASKS");
                         stoptasksUsed = true;
@@ -410,9 +448,10 @@ public class ClientV4 extends Application {
             int playerPosX = movableRGB.getPlayerPosX();
             int playerPosY = movableRGB.getPlayerPosY();
 
-            Player player = new Player(playerPosX, playerPosY, playerID, masterUsername, playerColor, playerRole);// updated class
-                                                                                                      // requires these
-                                                                                                      // values
+            Player player = new Player(playerPosX, playerPosY, playerID, masterUsername, playerColor, playerRole);// updated
+                                                                                                                  // class
+            // requires these
+            // values
             try {
                 if (oos != null) {
                     oos.writeObject(player);
@@ -449,7 +488,7 @@ public class ClientV4 extends Application {
                 // If its player data
                 if (data instanceof Player) {
                     Player player = (Player) data;
-                   
+
                     // And it's the players own ID
                     if (player.getPlayerID() == playerID) {
                         // Then assign the player to the HashMap
@@ -478,7 +517,8 @@ public class ClientV4 extends Application {
                             int posY = player.getPlayerPosY() + movableRGB.getPosY() - 65;
 
                             synchronized (playerList) {
-                                Platform.runLater(() -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
+                                Platform.runLater(
+                                        () -> playerList.get(player.getPlayerID()).model.relocate(posX, posY));
                             }
 
                         }).start();
@@ -494,11 +534,11 @@ public class ClientV4 extends Application {
                     System.out.println("My player ID: " + playerID);
                 }
 
-                if (data instanceof Chat) {//add chat messages
+                if (data instanceof Chat) {// add chat messages
                     taChatRoom.appendText(((Chat) data).toString());
 
                 }
-                if (data instanceof Vote) {//add votes
+                if (data instanceof Vote) {// add votes
                     voteTally.add((Vote) data);
                     System.out.println(((Vote) data).voteValue);
                 }
@@ -532,24 +572,38 @@ public class ClientV4 extends Application {
                         // Set the master crewmates role
                         playerRole = dataType[1];
                         crewmateMaster.setRole(playerRole);
-                        
+
                         // And then start talking to the server
                         new Thread(() -> {
                             talkToServer();
                         }).start();
                     }
 
-                    if(dataType[0].equals("WIN")) {
+                    if (dataType[0].equals("WIN")) {
                         movableRGB.speed = 0;
                         movableBottom.speed = 0;
                         movableTop.speed = 0;
+
+                        if (!isInitialized) {// self-checking if winscene exists
+                            Platform.runLater(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    initializeWin();
+
+                                }
+                            });
+
+                            isInitialized = true;// keeping winscene from infinitely initializing
+                        }
+                        isInitialized = true;// another lock as the code will activate before it gets here
                     }
 
-                    if(string.equals("SLOWDOWN")) {
+                    if (string.equals("SLOWDOWN")) {
                         movableRGB.speed = 3;
                         movableBottom.speed = 3;
                         movableTop.speed = 3;
-                        new java.util.Timer().schedule( 
+                        new java.util.Timer().schedule(
                                 new java.util.TimerTask() {
                                     @Override
                                     public void run() {
@@ -557,22 +611,20 @@ public class ClientV4 extends Application {
                                         movableBottom.speed = 5;
                                         movableTop.speed = 5;
                                     }
-                                }, 
-                                20000
-                        );
+                                },
+                                20000);
                     }
 
-                    if(string.equals("STOPTASKS")) {
+                    if (string.equals("STOPTASKS")) {
                         tasksStopped = true;
-                        new java.util.Timer().schedule( 
-                            new java.util.TimerTask() {
-                                @Override
-                                public void run() {
-                                    tasksStopped = false;
-                                }
-                            }, 
-                            20000
-                    );
+                        new java.util.Timer().schedule(
+                                new java.util.TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        tasksStopped = false;
+                                    }
+                                },
+                                20000);
                     }
                 }
 
@@ -727,19 +779,23 @@ public class ClientV4 extends Application {
             // Restrict movement based on collision checkers
             if (collisionCheckUp.getRed() > 0.3 && collisionCheckUp.getGreen() < 0.3) {
                 canGoUp = false;
-            } else canGoUp = true;
+            } else
+                canGoUp = true;
 
             if (collisionCheckDown.getRed() > 0.3 && collisionCheckDown.getGreen() < 0.3) {
                 canGoDown = false;
-            } else canGoDown = true;
+            } else
+                canGoDown = true;
 
             if (collisionCheckLeft.getRed() > 0.3 && collisionCheckLeft.getGreen() < 0.3) {
                 canGoLeft = false;
-            } else canGoLeft = true;
+            } else
+                canGoLeft = true;
 
             if (collisionCheckRight.getRed() > 0.3 && collisionCheckRight.getGreen() < 0.3) {
                 canGoRight = false;
-            } else canGoRight = true;
+            } else
+                canGoRight = true;
 
             // If movement allowed, then move player
             if (canGoUp && up) {
