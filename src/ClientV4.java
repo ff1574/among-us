@@ -93,7 +93,7 @@ public class ClientV4 extends Application {
     private AnimationTimer updateTimer = null;
 
     // Player Controls
-    private boolean up = false, down = false, right = false, left = false;
+    private boolean up = false, down = false, right = false, left = false, taskEnter = false;
 
     // Collision Detection
     private PixelReader pr = null;
@@ -103,6 +103,22 @@ public class ClientV4 extends Application {
     private ArrayList<Task> taskList = new ArrayList<>();
     private boolean tasksGotten;
 
+    // taskEvent Attributes
+    private Stage eventStage;
+    private Scene eventScene;
+    private AnchorPane eventRoot;
+
+
+    private ImageView TaskVoteEvent = new ImageView("TaskVoteEvent.png");
+    private ImageView TaskHelmEvent = new ImageView("TaskHelmEvent.png");
+    private ImageView TaskNavEvent = new ImageView("TaskNavEvent.png");
+    private ImageView TaskSickBayEvent = new ImageView("TaskSickBayEvent.png");
+    private ImageView TaskStorageEvent = new ImageView("TaskStorageEvent.png");
+    private ImageView TaskPumpEvent = new ImageView("TaskPumpEvent.png");
+    private ImageView TaskCannonEvent = new ImageView("TaskCannonEvent.png");
+
+    boolean isInitialized = false;
+
     @Override
     public void start(Stage stageStart) throws Exception {// initialize start first
         this.stageStart = stageStart;
@@ -110,7 +126,7 @@ public class ClientV4 extends Application {
 
         rootStart = new VBox();
 
-        initializeStart();//first initialize the start menu
+        initializeStart();// first initialize the start menu
 
     }
 
@@ -185,6 +201,46 @@ public class ClientV4 extends Application {
             e.printStackTrace();
         }
 
+    }
+
+    class TaskEvent {
+        public TaskEvent(ImageView taskEvent, String taskControl) {
+            this.taskEvent = taskEvent;
+            this.taskControl = taskControl;
+        }
+
+        public ImageView taskEvent;
+        String taskControl;
+
+        public void initializeEvent() {
+            eventStage = new Stage();
+            eventStage.setTitle(taskControl);
+
+            eventRoot = new AnchorPane(taskEvent);
+            eventScene = new Scene(eventRoot, 1200, 800);
+            eventStage.setScene(eventScene);
+            eventStage.show();
+            eventScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+                @Override
+                public void handle(KeyEvent event) {
+                    // TODO Auto-generated method stub
+                    switch (event.getCode()) {
+                        case SPACE:
+                            close();
+                            isInitialized = true;
+
+                    }
+                    ;
+                }
+
+            });
+
+        }
+
+        public void close() {
+            eventStage.close();
+        }
     }
 
     /** Beginning of the chat window */
@@ -307,7 +363,6 @@ public class ClientV4 extends Application {
         rgbMap = new Image(MAP_RGB);
         pr = rgbMap.getPixelReader();
 
-        // Add components to root
         this.root.getChildren().addAll(movableRGB, movableBottom, crewmateMaster, movableTop);
 
         // Initialize window
@@ -319,7 +374,7 @@ public class ClientV4 extends Application {
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-
+              
                 // Movement
                 switch (event.getCode()) {
                     case UP:
@@ -334,9 +389,15 @@ public class ClientV4 extends Application {
                     case RIGHT:
                         right = true;
                         break;
+                    case SPACE:
+                        taskEnter = true;
+                        break;
                     default:
                         break;
                 }
+
+              
+
             }
         });
 
@@ -426,7 +487,7 @@ public class ClientV4 extends Application {
                      */
                     if (!voteOptions.contains(player.getPlayerName())) {
                         voteOptions.add(player.getPlayerName());
-                      
+
                     }
 
                     // And it's the players own ID
@@ -743,6 +804,7 @@ public class ClientV4 extends Application {
             mapLayer.relocate(posX, posY);
 
             if (tasksGotten) {
+
                 for (Task task : taskList) {
                     ImageView taskImage = task.getTaskImage();
                     if (!root.getChildren().contains(taskImage)) {
@@ -753,15 +815,38 @@ public class ClientV4 extends Application {
                     if (task.getTaskType().equals("TaskVote")) {
                         if (playerPosX >= 1900 && playerPosX <= 2200 && playerPosY >= 450 && playerPosY <= 650) {
                             taskImage.setVisible(true);
+                            if (taskEnter) {
+                                if (!root.getChildren().contains(TaskVoteEvent)) {
+                                    root.getChildren().add(TaskVoteEvent);
+                                }
+                            }
+                            if (root.getChildren().contains(TaskVoteEvent)) {
+                                root.getChildren().remove(TaskVoteEvent);
+                            }
+
                         } else {
+                            isInitialized = false;
                             taskImage.setVisible(false);
+                            isInitialized = false;
                         }
                     }
                     if (task.getTaskType().equals("TaskHelm")) {
                         if (playerPosX >= 1380 && playerPosX <= 1580 && playerPosY >= 420 && playerPosY <= 640) {
                             taskImage.setVisible(true);
+
+                            if (taskEnter) {
+                                if (!root.getChildren().contains(TaskHelmEvent)) {
+                                    root.getChildren().add(TaskHelmEvent);
+                                }
+                            }
+                            if (root.getChildren().contains(TaskHelmEvent)) {
+                                root.getChildren().remove(TaskHelmEvent);
+                            }
                         } else {
+
                             taskImage.setVisible(false);
+                            isInitialized = false;
+
                         }
                     }
                     if (task.getTaskType().equals("TaskMast")) {
@@ -769,20 +854,43 @@ public class ClientV4 extends Application {
                             taskImage.setVisible(true);
                         } else {
                             taskImage.setVisible(false);
+
                         }
                     }
                     if (task.getTaskType().equals("TaskNav")) {
                         if (playerPosX >= 750 && playerPosX <= 1130 && playerPosY >= 680 && playerPosY <= 975) {
                             taskImage.setVisible(true);
+
+                            if (taskEnter) {
+                                if (!root.getChildren().contains(TaskNavEvent)) {
+                                    root.getChildren().add(TaskNavEvent);
+                                }
+                            }
+                            if (root.getChildren().contains(TaskNavEvent)) {
+                                root.getChildren().remove(TaskNavEvent);
+                            }
                         } else {
                             taskImage.setVisible(false);
+                            isInitialized = false;
+
                         }
                     }
                     if (task.getTaskType().equals("TaskSickBay")) {
                         if (playerPosX >= 1325 && playerPosX <= 1725 && playerPosY >= 850 && playerPosY <= 1075) {
                             taskImage.setVisible(true);
+
+                            if (taskEnter) {
+                                if (!root.getChildren().contains(TaskSickBayEvent)) {
+                                    root.getChildren().add(TaskSickBayEvent);
+                                }
+                            }
+                            if (root.getChildren().contains(TaskSickBayEvent)) {
+                                root.getChildren().remove(TaskSickBayEvent);
+                            }
                         } else {
                             taskImage.setVisible(false);
+                            isInitialized = false;
+
                         }
                     }
                     if (task.getTaskType().equals("TaskQuarters")) {
@@ -790,29 +898,67 @@ public class ClientV4 extends Application {
                             taskImage.setVisible(true);
                         } else {
                             taskImage.setVisible(false);
+                            isInitialized = false;
+
                         }
                     }
                     if (task.getTaskType().equals("TaskStorage")) {
                         if (playerPosX >= 1540 && playerPosX <= 2110 && playerPosY >= 1625 && playerPosY <= 1890) {
+
                             taskImage.setVisible(true);
+
+                            if (taskEnter) {
+                                if (!root.getChildren().contains(TaskStorageEvent)) {
+                                    root.getChildren().add(TaskStorageEvent);
+                                }
+                            }
+                            if (root.getChildren().contains(TaskStorageEvent)) {
+                                root.getChildren().remove(TaskStorageEvent);
+                            }
+
                         } else {
                             taskImage.setVisible(false);
+                            isInitialized = false;
+
                         }
                     }
                     if (task.getTaskType().equals("TaskPump")) {
                         if (playerPosX >= 2595 && playerPosX <= 3095 && playerPosY >= 1370 && playerPosY <= 1600) {
                             taskImage.setVisible(true);
+
+                            if (taskEnter) {
+                                if (!root.getChildren().contains(TaskPumpEvent)) {
+                                    root.getChildren().add(TaskPumpEvent);
+                                }
+                            }
+                            if (root.getChildren().contains(TaskPumpEvent)) {
+                                root.getChildren().remove(TaskPumpEvent);
+                            }
                         } else {
                             taskImage.setVisible(false);
+                            isInitialized = false;
+
                         }
                     }
                     if (task.getTaskType().equals("TaskCannons")) {
                         if (playerPosX >= 3005 && playerPosX <= 3395 && playerPosY >= 610 && playerPosY <= 730) {
                             taskImage.setVisible(true);
+
+                            if (taskEnter) {
+                                if (!root.getChildren().contains(TaskCannonEvent)) {
+                                    root.getChildren().add(TaskCannonEvent);
+                                }
+                            }
+                            if (root.getChildren().contains(TaskCannonEvent)) {
+                                root.getChildren().remove(TaskCannonEvent);
+                            }
                         } else {
                             taskImage.setVisible(false);
+                            isInitialized = false;
+
                         }
                     }
+
                 }
             }
         }

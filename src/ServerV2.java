@@ -146,7 +146,8 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
                 oos.writeObject(playerID);
                 // Tell client which role they have received
                 String role = assignRole();
-                oos.writeObject(role);
+                String regularRole = "ROLE:CREWMATE";
+                oos.writeObject(regularRole);
 
                 oos.flush();
                 oos.reset();
@@ -155,6 +156,7 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
                 if (role.equals("ROLE:CREWMATE")) {
                     // Tell client which tasks they need to complete
                     oos.writeObject(giveRandomTasks());
+              //      oos.writeObject(givetask());
                 }
                 // If client is impostor
                 if (role.equals("ROLE:IMPOSTOR")) {
@@ -175,7 +177,7 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
                             }
 
                         }
-                        //broadcasting functions similarly for all objects ideally
+                        // broadcasting functions similarly for all objects ideally
                         // get clients Chat/Vote data and broadcast it to other players
                         if (data instanceof Chat) {
                             Chat chat = (Chat) data;
@@ -247,6 +249,10 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
 
         // Constant for the amount of tasks the players receive
         private static final int TASK_AMOUNT = 4;
+
+        private String givetask() {
+            return "TASKS:TaskVote";
+        }
 
         // Method that randomly gives tasks to the players
         private String giveRandomTasks() {
