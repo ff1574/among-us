@@ -108,7 +108,6 @@ public class ClientV4 extends Application {
     private Scene eventScene;
     private AnchorPane eventRoot;
 
-
     private ImageView TaskVoteEvent = new ImageView("TaskVoteEvent.png");
     private ImageView TaskHelmEvent = new ImageView("TaskHelmEvent.png");
     private ImageView TaskNavEvent = new ImageView("TaskNavEvent.png");
@@ -116,6 +115,8 @@ public class ClientV4 extends Application {
     private ImageView TaskStorageEvent = new ImageView("TaskStorageEvent.png");
     private ImageView TaskPumpEvent = new ImageView("TaskPumpEvent.png");
     private ImageView TaskCannonEvent = new ImageView("TaskCannonEvent.png");
+
+    private ArrayList<ImageView> taskEventList = new ArrayList<>();
 
     boolean isInitialized = false;
 
@@ -211,32 +212,6 @@ public class ClientV4 extends Application {
 
         public ImageView taskEvent;
         String taskControl;
-
-        public void initializeEvent() {
-            eventStage = new Stage();
-            eventStage.setTitle(taskControl);
-
-            eventRoot = new AnchorPane(taskEvent);
-            eventScene = new Scene(eventRoot, 1200, 800);
-            eventStage.setScene(eventScene);
-            eventStage.show();
-            eventScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-
-                @Override
-                public void handle(KeyEvent event) {
-                    // TODO Auto-generated method stub
-                    switch (event.getCode()) {
-                        case SPACE:
-                            close();
-                            isInitialized = true;
-
-                    }
-                    ;
-                }
-
-            });
-
-        }
 
         public void close() {
             eventStage.close();
@@ -374,7 +349,7 @@ public class ClientV4 extends Application {
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-              
+
                 // Movement
                 switch (event.getCode()) {
                     case UP:
@@ -391,12 +366,11 @@ public class ClientV4 extends Application {
                         break;
                     case SPACE:
                         taskEnter = true;
+                        System.out.println("I work");
                         break;
                     default:
                         break;
                 }
-
-              
 
             }
         });
@@ -800,165 +774,141 @@ public class ClientV4 extends Application {
             if (canGoRight && right) {
                 posX -= speed;
             }
-
+            System.out.println(taskEnter);
             mapLayer.relocate(posX, posY);
 
             if (tasksGotten) {
+                for (ImageView taskEvent : taskEventList) {
 
-                for (Task task : taskList) {
-                    ImageView taskImage = task.getTaskImage();
-                    if (!root.getChildren().contains(taskImage)) {
-                        root.getChildren().add(taskImage);
-                        taskImage.setVisible(false);
+                    if (!root.getChildren().contains(taskEvent)) {
+                        root.getChildren().add(taskEvent);
+                        taskEvent.setVisible(false);
                     }
 
-                    if (task.getTaskType().equals("TaskVote")) {
-                        if (playerPosX >= 1900 && playerPosX <= 2200 && playerPosY >= 450 && playerPosY <= 650) {
-                            taskImage.setVisible(true);
-                            if (taskEnter) {
-                                if (!root.getChildren().contains(TaskVoteEvent)) {
-                                    root.getChildren().add(TaskVoteEvent);
+                    for (Task task : taskList) {
+                        ImageView taskImage = task.getTaskImage();
+                        if (!root.getChildren().contains(taskImage)) {
+                            root.getChildren().add(taskImage);
+                            taskImage.setVisible(false);
+                        }
+
+                        if (task.getTaskType().equals("TaskVote")) {
+                            if (playerPosX >= 1900 && playerPosX <= 2200 && playerPosY >= 450 && playerPosY <= 650) {
+                                taskImage.setVisible(true);
+                                if (taskEnter) {
+                                    TaskVoteEvent.setVisible(true);
+                                    System.out.println("I should be visible");
                                 }
-                            }
-                            if (root.getChildren().contains(TaskVoteEvent)) {
-                                root.getChildren().remove(TaskVoteEvent);
-                            }
 
-                        } else {
-                            isInitialized = false;
-                            taskImage.setVisible(false);
-                            isInitialized = false;
+                            } else {
+                                taskImage.setVisible(false);
+
+                            }
                         }
-                    }
-                    if (task.getTaskType().equals("TaskHelm")) {
-                        if (playerPosX >= 1380 && playerPosX <= 1580 && playerPosY >= 420 && playerPosY <= 640) {
-                            taskImage.setVisible(true);
+                        if (task.getTaskType().equals("TaskHelm")) {
+                            if (playerPosX >= 1380 && playerPosX <= 1580 && playerPosY >= 420 && playerPosY <= 640) {
+                                taskImage.setVisible(true);
 
-                            if (taskEnter) {
-                                if (!root.getChildren().contains(TaskHelmEvent)) {
-                                    root.getChildren().add(TaskHelmEvent);
+                                if (taskEnter) {
+                                    TaskVoteEvent.setVisible(true);
+
                                 }
+                            } else {
+
+                                taskImage.setVisible(false);
+
                             }
-                            if (root.getChildren().contains(TaskHelmEvent)) {
-                                root.getChildren().remove(TaskHelmEvent);
+                        }
+                        if (task.getTaskType().equals("TaskMast")) {
+                            if (playerPosX >= 2320 && playerPosX <= 2545 && playerPosY >= 450 && playerPosY <= 650) {
+                                taskImage.setVisible(true);
+                            } else {
+                                taskImage.setVisible(false);
+
                             }
-                        } else {
-
-                            taskImage.setVisible(false);
-                            isInitialized = false;
-
                         }
-                    }
-                    if (task.getTaskType().equals("TaskMast")) {
-                        if (playerPosX >= 2320 && playerPosX <= 2545 && playerPosY >= 450 && playerPosY <= 650) {
-                            taskImage.setVisible(true);
-                        } else {
-                            taskImage.setVisible(false);
+                        if (task.getTaskType().equals("TaskNav")) {
+                            if (playerPosX >= 750 && playerPosX <= 1130 && playerPosY >= 680 && playerPosY <= 975) {
+                                taskImage.setVisible(true);
 
-                        }
-                    }
-                    if (task.getTaskType().equals("TaskNav")) {
-                        if (playerPosX >= 750 && playerPosX <= 1130 && playerPosY >= 680 && playerPosY <= 975) {
-                            taskImage.setVisible(true);
+                                if (taskEnter) {
+                                    TaskVoteEvent.setVisible(true);
 
-                            if (taskEnter) {
-                                if (!root.getChildren().contains(TaskNavEvent)) {
-                                    root.getChildren().add(TaskNavEvent);
                                 }
-                            }
-                            if (root.getChildren().contains(TaskNavEvent)) {
-                                root.getChildren().remove(TaskNavEvent);
-                            }
-                        } else {
-                            taskImage.setVisible(false);
-                            isInitialized = false;
+                            } else {
+                                taskImage.setVisible(false);
 
+                            }
                         }
-                    }
-                    if (task.getTaskType().equals("TaskSickBay")) {
-                        if (playerPosX >= 1325 && playerPosX <= 1725 && playerPosY >= 850 && playerPosY <= 1075) {
-                            taskImage.setVisible(true);
+                        if (task.getTaskType().equals("TaskSickBay")) {
+                            if (playerPosX >= 1325 && playerPosX <= 1725 && playerPosY >= 850 && playerPosY <= 1075) {
+                                taskImage.setVisible(true);
 
-                            if (taskEnter) {
-                                if (!root.getChildren().contains(TaskSickBayEvent)) {
-                                    root.getChildren().add(TaskSickBayEvent);
+                                if (taskEnter) {
+                                    TaskVoteEvent.setVisible(true);
+
                                 }
+                            } else {
+                                taskImage.setVisible(false);
+                                isInitialized = false;
+
                             }
-                            if (root.getChildren().contains(TaskSickBayEvent)) {
-                                root.getChildren().remove(TaskSickBayEvent);
+                        }
+                        if (task.getTaskType().equals("TaskQuarters")) {
+                            if (playerPosX >= 1025 && playerPosX <= 1480 && playerPosY >= 1255 && playerPosY <= 1565) {
+                                taskImage.setVisible(true);
+                            } else {
+                                taskImage.setVisible(false);
+                                isInitialized = false;
+
                             }
-                        } else {
-                            taskImage.setVisible(false);
-                            isInitialized = false;
-
                         }
-                    }
-                    if (task.getTaskType().equals("TaskQuarters")) {
-                        if (playerPosX >= 1025 && playerPosX <= 1480 && playerPosY >= 1255 && playerPosY <= 1565) {
-                            taskImage.setVisible(true);
-                        } else {
-                            taskImage.setVisible(false);
-                            isInitialized = false;
+                        if (task.getTaskType().equals("TaskStorage")) {
+                            if (playerPosX >= 1540 && playerPosX <= 2110 && playerPosY >= 1625 && playerPosY <= 1890) {
 
-                        }
-                    }
-                    if (task.getTaskType().equals("TaskStorage")) {
-                        if (playerPosX >= 1540 && playerPosX <= 2110 && playerPosY >= 1625 && playerPosY <= 1890) {
+                                taskImage.setVisible(true);
 
-                            taskImage.setVisible(true);
+                                if (taskEnter) {
+                                    TaskVoteEvent.setVisible(true);
 
-                            if (taskEnter) {
-                                if (!root.getChildren().contains(TaskStorageEvent)) {
-                                    root.getChildren().add(TaskStorageEvent);
                                 }
-                            }
-                            if (root.getChildren().contains(TaskStorageEvent)) {
-                                root.getChildren().remove(TaskStorageEvent);
-                            }
 
-                        } else {
-                            taskImage.setVisible(false);
-                            isInitialized = false;
+                            } else {
+                                taskImage.setVisible(false);
+                                isInitialized = false;
 
+                            }
                         }
-                    }
-                    if (task.getTaskType().equals("TaskPump")) {
-                        if (playerPosX >= 2595 && playerPosX <= 3095 && playerPosY >= 1370 && playerPosY <= 1600) {
-                            taskImage.setVisible(true);
+                        if (task.getTaskType().equals("TaskPump")) {
+                            if (playerPosX >= 2595 && playerPosX <= 3095 && playerPosY >= 1370 && playerPosY <= 1600) {
+                                taskImage.setVisible(true);
 
-                            if (taskEnter) {
-                                if (!root.getChildren().contains(TaskPumpEvent)) {
-                                    root.getChildren().add(TaskPumpEvent);
+                                if (taskEnter) {
+                                    TaskVoteEvent.setVisible(true);
+
                                 }
-                            }
-                            if (root.getChildren().contains(TaskPumpEvent)) {
-                                root.getChildren().remove(TaskPumpEvent);
-                            }
-                        } else {
-                            taskImage.setVisible(false);
-                            isInitialized = false;
+                            } else {
+                                taskImage.setVisible(false);
+                                isInitialized = false;
 
+                            }
                         }
-                    }
-                    if (task.getTaskType().equals("TaskCannons")) {
-                        if (playerPosX >= 3005 && playerPosX <= 3395 && playerPosY >= 610 && playerPosY <= 730) {
-                            taskImage.setVisible(true);
+                        if (task.getTaskType().equals("TaskCannons")) {
+                            if (playerPosX >= 3005 && playerPosX <= 3395 && playerPosY >= 610 && playerPosY <= 730) {
+                                taskImage.setVisible(true);
 
-                            if (taskEnter) {
-                                if (!root.getChildren().contains(TaskCannonEvent)) {
-                                    root.getChildren().add(TaskCannonEvent);
+                                if (taskEnter) {
+                                    TaskVoteEvent.setVisible(true);
+
                                 }
-                            }
-                            if (root.getChildren().contains(TaskCannonEvent)) {
-                                root.getChildren().remove(TaskCannonEvent);
-                            }
-                        } else {
-                            taskImage.setVisible(false);
-                            isInitialized = false;
+                            } else {
+                                taskImage.setVisible(false);
+                                isInitialized = false;
 
+                            }
                         }
-                    }
 
+                    }
                 }
             }
         }
