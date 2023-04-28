@@ -126,6 +126,9 @@ public class ClientV4 extends Application {
     }
 
     // setting up start menu/handling
+    /**
+     * 
+     */
     public void initializeStart() {
 
         // row 1, ip info
