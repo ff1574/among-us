@@ -234,9 +234,9 @@ public class ServerV2 extends Application implements EventHandler<ActionEvent> {
                             }
                         }
 
-                        if (completedTasks >= playerList.size() * 2) { // comment out if statement to test the winstate
+                      if (completedTasks >= playerList.size() * 2) { // comment out if statement to test the winstate
                             oos.writeObject("WIN:CREWMATES");
-                     }
+                    }
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
                     }

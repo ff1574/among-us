@@ -74,6 +74,9 @@ public class ClientV4 extends Application {
     private final static String MAP_TOP = "mapFinalTop.png";
     private final static String MAP_RGB = "mapRGB.png";
 
+    // minimap
+    private final static String MINI_MAP = "miniMap.png";
+
     // Crewmates
     private int playerID;
     private String masterUsername;
@@ -174,7 +177,7 @@ public class ClientV4 extends Application {
         winStage.setScene(winScene);
         winStage.show();
 
-        winScene.setOnKeyPressed(new EventHandler<KeyEvent>() {//winscene control to close out all applications
+        winScene.setOnKeyPressed(new EventHandler<KeyEvent>() {// winscene control to close out all applications
             @Override
             public void handle(KeyEvent event) {
                 if (event.getCode() == KeyCode.SPACE) {
@@ -189,7 +192,7 @@ public class ClientV4 extends Application {
                             e.printStackTrace();
                         }
                     }
-                 System.exit(0);
+                    System.exit(0);
                 }
             }
         });
@@ -319,18 +322,32 @@ public class ClientV4 extends Application {
         movableBottom = new MovableBackground(MAP_BOTTOM);
         movableTop = new MovableBackground(MAP_TOP);
 
+        // create miniMap
+        
+        
+ 
+
         // Collision Detection
         rgbMap = new Image(MAP_RGB);
         pr = rgbMap.getPixelReader();
 
+        
+        ImageView miniMap = new ImageView(MINI_MAP);
+        miniMap.scaleXProperty();
+        miniMap.scaleYProperty();
         // Add components to root
-        this.root.getChildren().addAll(movableRGB, movableBottom, crewmateMaster, movableTop);
+        this.root.getChildren().addAll(movableRGB, movableBottom, crewmateMaster, movableTop,miniMap);
 
         // Initialize window
         scene = new Scene(root, 1200, 800);
         stage.setScene(scene);
         stage.show();
+     
+        
+      
 
+        
+       
         // Keyboard Control
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
